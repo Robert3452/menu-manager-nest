@@ -11,7 +11,7 @@
       "environment": {
         "DB_HOST": "localhost",
         "DB_PORT": "5432",
-        "DB_NAME": "cloudorderdb",
+        "DB_NAME": "cloudorder_nest",
         "USERNAME": "postgres",
         "PASSWORD": "admin1234",
         "ENVIRONMENT": "dev",
@@ -92,10 +92,10 @@
               }
             }
           },
-          "AppLogGroup": {
+          "MainLogGroup": {
             "Type": "AWS::Logs::LogGroup",
             "Properties": {
-              "LogGroupName": "/aws/lambda/menu-manager-nest-dev-app"
+              "LogGroupName": "/aws/lambda/menu-manager-nest-dev-main"
             }
           },
           "IamRoleLambdaExecution": {
@@ -176,25 +176,25 @@
               }
             }
           },
-          "AppLambdaFunction": {
+          "MainLambdaFunction": {
             "Type": "AWS::Lambda::Function",
             "Properties": {
               "Code": {
                 "S3Bucket": {
                   "Ref": "ServerlessDeploymentBucket"
                 },
-                "S3Key": "serverless/menu-manager-nest/dev/1712968664844-2024-04-13T00:37:44.844Z/menu-manager-nest.zip"
+                "S3Key": "serverless/menu-manager-nest/dev/1713029939271-2024-04-13T17:38:59.271Z/menu-manager-nest.zip"
               },
               "Handler": "src/lambda.handler",
               "Runtime": "nodejs20.x",
-              "FunctionName": "menu-manager-nest-dev-app",
+              "FunctionName": "menu-manager-nest-dev-main",
               "MemorySize": 1024,
               "Timeout": 6,
               "Environment": {
                 "Variables": {
                   "DB_HOST": "localhost",
                   "DB_PORT": "5432",
-                  "DB_NAME": "cloudorderdb",
+                  "DB_NAME": "cloudorder_nest",
                   "USERNAME": "postgres",
                   "PASSWORD": "admin1234",
                   "ENVIRONMENT": "dev",
@@ -209,45 +209,160 @@
               }
             },
             "DependsOn": [
-              "AppLogGroup"
+              "MainLogGroup"
             ]
           },
-          "AppLambdaVersion7MuSNtyedhIe1GeRYI3qK7YmNhOgpVcpEfR88Tw4js8": {
+          "MainLambdaVersion6IdbgcvYtJwvlWWsEd1xZYPz4XhMOIUuIF2pJx0M": {
             "Type": "AWS::Lambda::Version",
             "DeletionPolicy": "Retain",
             "Properties": {
               "FunctionName": {
-                "Ref": "AppLambdaFunction"
+                "Ref": "MainLambdaFunction"
               },
-              "CodeSha256": "A1gupulBgEU9TZh0Le3emLG4Y7/xL2feIWdeRW6425E="
+              "CodeSha256": "7QxXmuAKh9Q4Rir8NaNvH6wYPBU7/2O75GKGzo42Hw8="
             }
           },
-          "HttpApi": {
-            "Type": "AWS::ApiGatewayV2::Api",
+          "ApiGatewayRestApi": {
+            "Type": "AWS::ApiGateway::RestApi",
             "Properties": {
               "Name": "dev-menu-manager-nest",
-              "ProtocolType": "HTTP"
+              "EndpointConfiguration": {
+                "Types": [
+                  "EDGE"
+                ]
+              },
+              "Policy": ""
             }
           },
-          "HttpApiStage": {
-            "Type": "AWS::ApiGatewayV2::Stage",
+          "ApiGatewayResourceProxyVar": {
+            "Type": "AWS::ApiGateway::Resource",
             "Properties": {
-              "ApiId": {
-                "Ref": "HttpApi"
+              "ParentId": {
+                "Fn::GetAtt": [
+                  "ApiGatewayRestApi",
+                  "RootResourceId"
+                ]
               },
-              "StageName": "$default",
-              "AutoDeploy": true,
-              "DefaultRouteSettings": {
-                "DetailedMetricsEnabled": false
+              "PathPart": "{proxy+}",
+              "RestApiId": {
+                "Ref": "ApiGatewayRestApi"
               }
             }
           },
-          "AppLambdaPermissionHttpApi": {
+          "ApiGatewayMethodAny": {
+            "Type": "AWS::ApiGateway::Method",
+            "Properties": {
+              "HttpMethod": "ANY",
+              "RequestParameters": {},
+              "ResourceId": {
+                "Fn::GetAtt": [
+                  "ApiGatewayRestApi",
+                  "RootResourceId"
+                ]
+              },
+              "RestApiId": {
+                "Ref": "ApiGatewayRestApi"
+              },
+              "ApiKeyRequired": false,
+              "AuthorizationType": "NONE",
+              "Integration": {
+                "IntegrationHttpMethod": "POST",
+                "Type": "AWS_PROXY",
+                "Uri": {
+                  "Fn::Join": [
+                    "",
+                    [
+                      "arn:",
+                      {
+                        "Ref": "AWS::Partition"
+                      },
+                      ":apigateway:",
+                      {
+                        "Ref": "AWS::Region"
+                      },
+                      ":lambda:path/2015-03-31/functions/",
+                      {
+                        "Fn::GetAtt": [
+                          "MainLambdaFunction",
+                          "Arn"
+                        ]
+                      },
+                      "/invocations"
+                    ]
+                  ]
+                }
+              },
+              "MethodResponses": []
+            },
+            "DependsOn": [
+              "MainLambdaPermissionApiGateway"
+            ]
+          },
+          "ApiGatewayMethodProxyVarAny": {
+            "Type": "AWS::ApiGateway::Method",
+            "Properties": {
+              "HttpMethod": "ANY",
+              "RequestParameters": {},
+              "ResourceId": {
+                "Ref": "ApiGatewayResourceProxyVar"
+              },
+              "RestApiId": {
+                "Ref": "ApiGatewayRestApi"
+              },
+              "ApiKeyRequired": false,
+              "AuthorizationType": "NONE",
+              "Integration": {
+                "IntegrationHttpMethod": "POST",
+                "Type": "AWS_PROXY",
+                "Uri": {
+                  "Fn::Join": [
+                    "",
+                    [
+                      "arn:",
+                      {
+                        "Ref": "AWS::Partition"
+                      },
+                      ":apigateway:",
+                      {
+                        "Ref": "AWS::Region"
+                      },
+                      ":lambda:path/2015-03-31/functions/",
+                      {
+                        "Fn::GetAtt": [
+                          "MainLambdaFunction",
+                          "Arn"
+                        ]
+                      },
+                      "/invocations"
+                    ]
+                  ]
+                }
+              },
+              "MethodResponses": []
+            },
+            "DependsOn": [
+              "MainLambdaPermissionApiGateway"
+            ]
+          },
+          "ApiGatewayDeployment1713029904184": {
+            "Type": "AWS::ApiGateway::Deployment",
+            "Properties": {
+              "RestApiId": {
+                "Ref": "ApiGatewayRestApi"
+              },
+              "StageName": "dev"
+            },
+            "DependsOn": [
+              "ApiGatewayMethodAny",
+              "ApiGatewayMethodProxyVarAny"
+            ]
+          },
+          "MainLambdaPermissionApiGateway": {
             "Type": "AWS::Lambda::Permission",
             "Properties": {
               "FunctionName": {
                 "Fn::GetAtt": [
-                  "AppLambdaFunction",
+                  "MainLambdaFunction",
                   "Arn"
                 ]
               },
@@ -271,48 +386,13 @@
                     },
                     ":",
                     {
-                      "Ref": "HttpApi"
+                      "Ref": "ApiGatewayRestApi"
                     },
-                    "/*"
+                    "/*/*"
                   ]
                 ]
               }
             }
-          },
-          "HttpApiIntegrationApp": {
-            "Type": "AWS::ApiGatewayV2::Integration",
-            "Properties": {
-              "ApiId": {
-                "Ref": "HttpApi"
-              },
-              "IntegrationType": "AWS_PROXY",
-              "IntegrationUri": {
-                "$ref": "$[\"service\"][\"provider\"][\"compiledCloudFormationTemplate\"][\"Resources\"][\"AppLambdaPermissionHttpApi\"][\"Properties\"][\"FunctionName\"]"
-              },
-              "PayloadFormatVersion": "2.0",
-              "TimeoutInMillis": 30000
-            }
-          },
-          "HttpApiRouteDefault": {
-            "Type": "AWS::ApiGatewayV2::Route",
-            "Properties": {
-              "ApiId": {
-                "Ref": "HttpApi"
-              },
-              "RouteKey": "$default",
-              "Target": {
-                "Fn::Join": [
-                  "/",
-                  [
-                    "integrations",
-                    {
-                      "Ref": "HttpApiIntegrationApp"
-                    }
-                  ]
-                ]
-              }
-            },
-            "DependsOn": "HttpApiIntegrationApp"
           }
         },
         "Outputs": {
@@ -324,33 +404,24 @@
               "Name": "sls-menu-manager-nest-dev-ServerlessDeploymentBucketName"
             }
           },
-          "AppLambdaFunctionQualifiedArn": {
+          "MainLambdaFunctionQualifiedArn": {
             "Description": "Current Lambda function version",
             "Value": {
-              "Ref": "AppLambdaVersion7MuSNtyedhIe1GeRYI3qK7YmNhOgpVcpEfR88Tw4js8"
+              "Ref": "MainLambdaVersion6IdbgcvYtJwvlWWsEd1xZYPz4XhMOIUuIF2pJx0M"
             },
             "Export": {
-              "Name": "sls-menu-manager-nest-dev-AppLambdaFunctionQualifiedArn"
+              "Name": "sls-menu-manager-nest-dev-MainLambdaFunctionQualifiedArn"
             }
           },
-          "HttpApiId": {
-            "Description": "Id of the HTTP API",
-            "Value": {
-              "Ref": "HttpApi"
-            },
-            "Export": {
-              "Name": "sls-menu-manager-nest-dev-HttpApiId"
-            }
-          },
-          "HttpApiUrl": {
-            "Description": "URL of the HTTP API",
+          "ServiceEndpoint": {
+            "Description": "URL of the service endpoint",
             "Value": {
               "Fn::Join": [
                 "",
                 [
                   "https://",
                   {
-                    "Ref": "HttpApi"
+                    "Ref": "ApiGatewayRestApi"
                   },
                   ".execute-api.",
                   {
@@ -359,12 +430,13 @@
                   ".",
                   {
                     "Ref": "AWS::URLSuffix"
-                  }
+                  },
+                  "/dev"
                 ]
               ]
             },
             "Export": {
-              "Name": "sls-menu-manager-nest-dev-HttpApiUrl"
+              "Name": "sls-menu-manager-nest-dev-ServiceEndpoint"
             }
           }
         }
@@ -460,15 +532,17 @@
     ],
     "pluginsData": {},
     "functions": {
-      "app": {
+      "main": {
         "handler": "src/lambda.handler",
         "events": [
           {
-            "httpApi": "*",
-            "resolvedMethod": "ANY"
+            "http": "ANY /"
+          },
+          {
+            "http": "ANY {proxy+}"
           }
         ],
-        "name": "menu-manager-nest-dev-app",
+        "name": "menu-manager-nest-dev-main",
         "package": {
           "exclude": [
             "node_modules/serverless-plugin-typescript"
@@ -480,7 +554,7 @@
         "timeout": 6,
         "runtime": "nodejs20.x",
         "vpc": {},
-        "versionLogicalId": "AppLambdaVersion7MuSNtyedhIe1GeRYI3qK7YmNhOgpVcpEfR88Tw4js8"
+        "versionLogicalId": "MainLambdaVersion6IdbgcvYtJwvlWWsEd1xZYPz4XhMOIUuIF2pJx0M"
       }
     },
     "configValidationMode": "warn",
@@ -504,7 +578,7 @@
     "artifact": "/Users/robertmezagarcia/Ideas/CloudOrder/Project/menu-manager-nest/.build/.serverless/menu-manager-nest.zip"
   },
   "package": {
-    "artifactDirectoryName": "serverless/menu-manager-nest/dev/1712968664844-2024-04-13T00:37:44.844Z",
+    "artifactDirectoryName": "serverless/menu-manager-nest/dev/1713029939271-2024-04-13T17:38:59.271Z",
     "artifact": "menu-manager-nest.zip"
   }
 }
