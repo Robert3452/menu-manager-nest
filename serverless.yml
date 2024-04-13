@@ -1,0 +1,31 @@
+service: 
+  name: menu-manager-nest
+  
+frameworkVersion: '3'
+useDotenv: true
+
+plugins:
+  - serverless-plugin-typescript
+  - serverless-plugin-optimize
+  - serverless-offline
+
+provider:
+  name: aws
+  runtime: nodejs20.x
+  region: us-east-1
+  environment:
+    DB_HOST: ${env:DB_HOST}
+    DB_PORT: ${env:DB_PORT}
+    DB_NAME: ${env:DB_NAME}
+    USERNAME: ${env:USERNAME}
+    PASSWORD: ${env:PASSWORD}
+    ENVIRONMENT: ${env:ENVIRONMENT}
+    S3MANAGER: ${env:S3MANAGER}
+
+functions:
+  api:
+    handler: src/lambda.handler
+    events:
+      - httpApi: '*'
+          # method: any
+          # path: /{any+}
