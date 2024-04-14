@@ -2,7 +2,7 @@ import { registerAs } from '@nestjs/config';
 import { TypeOrmModuleOptions } from '@nestjs/typeorm';
 import { config as dotenvConfig } from 'dotenv';
 import { DataSource, DataSourceOptions } from 'typeorm';
-
+import { join } from 'path';
 dotenvConfig({ path: '.env' });
 
 const config: TypeOrmModuleOptions = {
@@ -12,8 +12,8 @@ const config: TypeOrmModuleOptions = {
   username: `${process.env.DB_USERNAME}`,
   password: `${process.env.DB_PASSWORD}`,
   database: `${process.env.DB_NAME}`,
-  entities: ['src/database/Entity/*.entity{.ts}'],
-  migrations: ['src/database/migrations/*{.ts}'],
+  entities: [join(__dirname, '/src/database/Entity/*.ts')],
+  migrations: [join(__dirname, '/src/database/migrations/*.ts')],
   autoLoadEntities: true,
   synchronize: false,
   migrationsRun: true,

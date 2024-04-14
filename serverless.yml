@@ -15,9 +15,9 @@ provider:
   environment:
     DB_HOST: ${env:DB_HOST}
     DB_PORT: ${env:DB_PORT}
+    DB_USERNAME: ${env:DB_USERNAME}
+    DB_PASSWORD: ${env:DB_PASSWORD}
     DB_NAME: ${env:DB_NAME}
-    USERNAME: ${env:USERNAME}
-    PASSWORD: ${env:PASSWORD}
     ENVIRONMENT: ${env:ENVIRONMENT}
     S3MANAGER: ${env:S3MANAGER}
 
