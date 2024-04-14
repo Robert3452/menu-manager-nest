@@ -1,10 +1,9 @@
 import { registerAs } from '@nestjs/config';
 import { TypeOrmModuleOptions } from '@nestjs/typeorm';
 import { config as dotenvConfig } from 'dotenv';
+import { join, resolve } from 'path';
 import { DataSource, DataSourceOptions } from 'typeorm';
-import { join } from 'path';
 dotenvConfig({ path: '.env' });
-
 const config: TypeOrmModuleOptions = {
   type: 'postgres',
   host: `${process.env.DB_HOST}`,
@@ -12,8 +11,8 @@ const config: TypeOrmModuleOptions = {
   username: `${process.env.DB_USERNAME}`,
   password: `${process.env.DB_PASSWORD}`,
   database: `${process.env.DB_NAME}`,
-  entities: [join(__dirname, '/src/database/Entity/*.ts')],
-  migrations: [join(__dirname, '/src/database/migrations/*.ts')],
+  entities: [join(resolve(), '/dist/database/Entity/*.js').toString()],
+  migrations: [join(resolve(), '/dist/database/migrations/*.js').toString()],
   autoLoadEntities: true,
   synchronize: false,
   migrationsRun: true,
