@@ -35,7 +35,6 @@ export class Product {
   })
   @JoinColumn({ name: 'corridorId' })
   corridor: Corridor;
-
   @Column({ name: 'corridorId' })
   corridorId: number;
 
