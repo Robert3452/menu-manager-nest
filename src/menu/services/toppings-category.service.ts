@@ -3,9 +3,9 @@ import { InjectRepository } from '@nestjs/typeorm';
 import { Topping } from 'src/database/Entity/Topping';
 import { ToppingsCategory } from 'src/database/Entity/ToppingsCategories';
 import { Repository } from 'typeorm';
-import { UpdateToppingCategoryDto } from './dto/update-toppings-category.dto';
-import { CreateToppingCategoryDto } from './dto/create-toppings-category.dto';
-import { ToppingsService } from 'src/toppings/toppings.service';
+import { UpdateToppingCategoryDto } from '../dto/update-toppings-category.dto';
+import { CreateToppingCategoryDto } from '../dto/create-toppings-category.dto';
+import { ToppingsService } from 'src/menu/services/toppings.service';
 import { Product } from 'src/database/Entity/Product';
 
 @Injectable()

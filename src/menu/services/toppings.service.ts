@@ -1,6 +1,6 @@
 import { Injectable } from '@nestjs/common';
-import { CreateToppingDto } from './dto/create-topping.dto';
-import { UpdateToppingDto } from './dto/update-topping.dto';
+import { CreateToppingDto } from '../dto/create-topping.dto';
+import { UpdateToppingDto } from '../dto/update-topping.dto';
 import { Repository } from 'typeorm';
 import { InjectRepository } from '@nestjs/typeorm';
 import { Topping } from 'src/database/Entity/Topping';
