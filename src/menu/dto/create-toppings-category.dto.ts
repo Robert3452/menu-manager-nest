@@ -1,5 +1,5 @@
 import { Type } from 'class-transformer';
-import { IsEnum, IsNumber, IsString } from 'class-validator';
+import { IsArray, IsEnum, IsNumber, IsString } from 'class-validator';
 import { ToppingType } from 'src/database/Entity/Enum/ToppingTypeEnum';
 import { CreateToppingDto } from 'src/menu/dto/create-topping.dto';
 
@@ -19,7 +19,7 @@ export class CreateToppingCategoryDto {
 
   @IsNumber()
   index: number;
-
+  @IsArray()
   @Type(() => CreateToppingDto)
   toppings: CreateToppingDto[];
 }

@@ -1,15 +1,15 @@
 import { Test, TestingModule } from '@nestjs/testing';
-import { S3ClientService } from './s3-client.service';
+import { BranchInfoService } from './branch-info.service';
 
-describe('S3ClientService', () => {
-  let service: S3ClientService;
+describe('BranchInfoService', () => {
+  let service: BranchInfoService;
 
   beforeEach(async () => {
     const module: TestingModule = await Test.createTestingModule({
-      providers: [S3ClientService],
+      providers: [BranchInfoService],
     }).compile();
 
-    service = module.get<S3ClientService>(S3ClientService);
+    service = module.get<BranchInfoService>(BranchInfoService);
   });
 
   it('should be defined', () => {

@@ -10,6 +10,7 @@ import { join, resolve } from 'path';
 import { MenuModule } from './menu/menu.module';
 import { BranchesModule } from './branches/branches.module';
 import { StoresModule } from './stores/stores.module';
+import { BranchInfoModule } from './branch-info/branch-info.module';
 import config from './config';
 
 @Module({
@@ -24,6 +25,7 @@ import config from './config';
     MenuModule,
     BranchesModule,
     StoresModule,
+    BranchInfoModule,
   ],
   controllers: [AppController],
   providers: [

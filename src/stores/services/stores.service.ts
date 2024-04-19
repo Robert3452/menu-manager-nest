@@ -29,7 +29,7 @@ export class StoresService {
     }
   }
 
-  async getBranchByStore(storeId: number) {
+  async getBranchesByStoreId(storeId: number) {
     const result = await this.storeRepo
       .createQueryBuilder('stores')
       .innerJoinAndSelect('stores.branches', 'branches')
@@ -46,7 +46,7 @@ export class StoresService {
       .getOne();
     return result;
   }
-  async getStore() {
+  async getStores() {
     try {
       const result = await this.storeRepo
         .createQueryBuilder('stores')
