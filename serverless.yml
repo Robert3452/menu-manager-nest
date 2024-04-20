@@ -5,7 +5,6 @@ useDotenv: true
 
 plugins:
   - 'serverless-plugin-typescript'
-  - serverless-plugin-optimize
   - serverless-offline
 
 provider:
@@ -20,6 +19,8 @@ provider:
     DB_NAME: ${env:DB_NAME}
     ENVIRONMENT: ${env:ENVIRONMENT}
     S3MANAGER: ${env:S3MANAGER}
+
+
 
 functions:
   main: # The name of the lambda function
