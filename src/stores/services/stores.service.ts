@@ -1,17 +1,21 @@
 import { Injectable } from '@nestjs/common';
+import { InjectRepository } from '@nestjs/typeorm';
+import { BaseRepository } from 'src/database/BaseRepository';
+import { Store } from 'src/database/Entity/Store';
+import { S3ClientService } from 'src/s3-client/s3-client.service';
 import { CreateStoreDto } from '../dto/create-store.dto';
 import { UpdateStoreDto } from '../dto/update-store.dto';
-import { S3ClientService } from 'src/s3-client/s3-client.service';
-import { InjectRepository } from '@nestjs/typeorm';
-import { Store } from 'src/database/Entity/Store';
 import { Repository } from 'typeorm';
 
 @Injectable()
 export class StoresService {
+  repo: BaseRepository<Store>;
   constructor(
     private s3Client: S3ClientService,
-    @InjectRepository(Store) private storeRepo: Repository<Store>,
-  ) {}
+    @InjectRepository(Store) private readonly storeRepo: Repository<Store>,
+  ) {
+    this.repo = new BaseRepository(storeRepo);
+  }
 
   async createStore(body: CreateStoreDto, file: Express.Multer.File) {
     try {
@@ -19,7 +23,7 @@ export class StoresService {
         bucket: 'menu-order',
         file: file,
       });
-      const created = await this.storeRepo.create({
+      const created = await this.repo.create({
         name: body.name,
         logo: url,
       } as Store);
@@ -30,7 +34,7 @@ export class StoresService {
   }
 
   async getBranchesByStoreId(storeId: number) {
-    const result = await this.storeRepo
+    const result = await this.repo
       .createQueryBuilder('stores')
       .innerJoinAndSelect('stores.branches', 'branches')
       .leftJoinAndSelect('branches.address', 'address')
@@ -39,7 +43,7 @@ export class StoresService {
     return result;
   }
   async getStoreById(storeId: number) {
-    const result = await this.storeRepo
+    const result = await this.repo
       .createQueryBuilder('stores')
       .leftJoinAndSelect('stores.branches', 'branches')
       .where('stores.id=:storeId', { storeId })
@@ -48,7 +52,7 @@ export class StoresService {
   }
   async getStores() {
     try {
-      const result = await this.storeRepo
+      const result = await this.repo
         .createQueryBuilder('stores')
         .leftJoinAndSelect('stores.branches', 'branches')
         .leftJoin('branches.address', 'address')
@@ -68,14 +72,14 @@ export class StoresService {
   ) {
     try {
       const store: Store = { name: body.name } as Store;
-      const found = await this.storeRepo.findOne({ where: { id: storeId } });
+      const found = await this.repo.findOneById(storeId);
       let url: string;
       if (file) {
         await this.s3Client.deleteObject(found.logo);
         url = await this.s3Client.createObject({ bucket: 'menu-order', file });
         store.logo = url;
       }
-      const updated = await this.storeRepo.update(storeId, store);
+      const updated = await this.repo.update(storeId, store);
       return updated;
     } catch (error) {
       throw error;
@@ -83,8 +87,8 @@ export class StoresService {
   }
   async deleteStore(storeId: number) {
     try {
-      const found = await this.storeRepo.findOne({ where: { id: storeId } });
-      await this.storeRepo.delete(storeId);
+      const found = await this.repo.findOneById(storeId);
+      await this.repo.delete(storeId);
       const storeDeleted = await this.s3Client.deleteObject(found.logo);
       return storeDeleted;
     } catch (error) {

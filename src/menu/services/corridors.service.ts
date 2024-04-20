@@ -5,13 +5,17 @@ import { InjectRepository } from '@nestjs/typeorm';
 import { Corridor } from 'src/database/Entity/Corridor';
 import { Repository } from 'typeorm';
 import { BranchesService } from 'src/stores/services/branches.service';
+import { BaseRepository } from 'src/database/BaseRepository';
 
 @Injectable()
 export class CorridorsService {
+  repo: BaseRepository<Corridor>;
   constructor(
     @InjectRepository(Corridor) private corridorRepo: Repository<Corridor>,
     private branchService: BranchesService,
-  ) {}
+  ) {
+    this.repo = new BaseRepository(corridorRepo);
+  }
 
   async getCorridorsByBranch(branchId: number) {
     const corridors = await this.corridorRepo

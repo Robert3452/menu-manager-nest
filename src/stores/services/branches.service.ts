@@ -6,16 +6,20 @@ import { Repository } from 'typeorm';
 import { Branch } from 'src/database/Entity/Branch';
 import { StoresService } from './stores.service';
 import { Store } from 'src/database/Entity/Store';
+import { BaseRepository } from 'src/database/BaseRepository';
 
 @Injectable()
 export class BranchesService {
+  repo: BaseRepository<Branch>;
   constructor(
     @InjectRepository(Branch) private branchRepo: Repository<Branch>,
     private storeService: StoresService,
-  ) {}
+  ) {
+    this.repo = new BaseRepository(branchRepo);
+  }
   async createBranch(body: CreateBranchDto) {
     const storeFound = await this.storeService.getStoreById(body.storeId);
-    const created = await this.branchRepo.create({
+    const created = await this.repo.create({
       branchName: body.branchName,
       store: storeFound,
     } as Branch);
@@ -29,18 +33,18 @@ export class BranchesService {
       storeFound = await this.storeService.getStoreById(body.storeId);
       newBranch.store = storeFound;
     }
-    await this.branchRepo.update(branchId, newBranch);
+    await this.repo.update(branchId, newBranch);
     const result = await this.getBranchById(branchId);
     return result;
   }
 
   async deleteBranch(branchId: number) {
-    const deleted = await this.branchRepo.delete(branchId);
+    const deleted = await this.repo.delete(branchId);
     return deleted;
   }
 
   async getBranchById(branchId: number) {
-    const branch = await this.branchRepo
+    const branch = await this.repo
       .createQueryBuilder('branches')
       .leftJoinAndSelect('branches.schedule', 'schedule')
       .leftJoinAndSelect('schedule.weekdaySchedules', 'weekdays')
@@ -52,12 +56,12 @@ export class BranchesService {
   }
 
   async getById(branchId: number) {
-    const branch = await this.branchRepo.findOne({ where: { id: branchId } });
+    const branch = await this.repo.findOneById(branchId);
     return branch;
   }
 
   async getMenuBoard(branchId: number) {
-    const menu = await this.branchRepo
+    const menu = await this.repo
       .createQueryBuilder('branches')
       .leftJoinAndSelect('branches.corridors', 'corridors')
       .leftJoinAndSelect('corridors.products', 'products')

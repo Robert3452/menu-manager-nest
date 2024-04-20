@@ -7,21 +7,25 @@ import { UpdateToppingCategoryDto } from '../dto/update-toppings-category.dto';
 import { CreateToppingCategoryDto } from '../dto/create-toppings-category.dto';
 import { ToppingsService } from 'src/menu/services/toppings.service';
 import { Product } from 'src/database/Entity/Product';
+import { BaseRepository } from 'src/database/BaseRepository';
 
 @Injectable()
 export class ToppingsCategoryService {
+  repo: BaseRepository<ToppingsCategory>;
   constructor(
     @InjectRepository(ToppingsCategory)
     private toppingCatRepo: Repository<ToppingsCategory>,
     private toppingService: ToppingsService,
-  ) {}
+  ) {
+    this.repo = new BaseRepository(toppingCatRepo);
+  }
   async create(body: CreateToppingCategoryDto) {
     const { toppings, ...rest } = body;
 
     const results = await Promise.all(
       toppings.map((topping) => this.toppingService.create(topping)),
     );
-    const saved = await this.toppingCatRepo.create({
+    const saved = await this.repo.create({
       ...rest,
       toppings: results,
     } as ToppingsCategory);
@@ -29,21 +33,19 @@ export class ToppingsCategoryService {
   }
 
   async delete(id: number) {
-    const deleted = await this.toppingCatRepo.delete(id);
+    const deleted = await this.repo.delete(id);
     return deleted;
   }
 
   async update(id: number, body: UpdateToppingCategoryDto) {
     const { toppings, ...rest } = body;
     if (toppings && toppings.length > 0) {
-      const toppingsCategory = await this.toppingCatRepo.findOne({
-        where: { id },
-      });
+      const toppingsCategory = await this.repo.findOneById(id);
       await this.toppingService.upsert(
         toppings.map((el) => ({ ...el, toppingsCategory }) as Topping),
       );
     }
-    const result = await this.toppingCatRepo.update(id, {
+    const result = await this.repo.update(id, {
       ...rest,
     } as ToppingsCategory);
 
@@ -51,7 +53,7 @@ export class ToppingsCategoryService {
   }
 
   async upsert(body: UpdateToppingCategoryDto[], product: Product) {
-    const result = await this.toppingCatRepo.upsert(
+    const result = await this.repo.baseRepository.upsert(
       body.map((el) => ({ ...el, product })),
       ['title'],
     );
@@ -81,7 +83,7 @@ export class ToppingsCategoryService {
   }
 
   async getById(id: number) {
-    const result = await this.toppingCatRepo
+    const result = await this.repo
       .createQueryBuilder('categories')
       .leftJoinAndSelect('categories.toppings', 'toppings')
       .where('categories.toppings_category_id=:id', { id })
@@ -90,7 +92,7 @@ export class ToppingsCategoryService {
   }
 
   async getCategoriesByProductId(id: number) {
-    const result = await this.toppingCatRepo
+    const result = await this.repo
       .createQueryBuilder('categories')
       .innerJoin('categories.product', 'product')
       .leftJoinAndSelect('categories.toppings', 'toppings')

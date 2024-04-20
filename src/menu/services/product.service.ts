@@ -8,20 +8,24 @@ import { ToppingsCategoryService } from 'src/menu/services/toppings-category.ser
 import { S3ClientService } from 'src/s3-client/s3-client.service';
 import { BranchesService } from 'src/stores/services/branches.service';
 import { CorridorsService } from './corridors.service';
+import { BaseRepository } from 'src/database/BaseRepository';
 
 @Injectable()
 export class ProductService {
+  repo: BaseRepository<Product>;
   constructor(
     @InjectRepository(Product) private productRepo: Repository<Product>,
     private toppingCategoryService: ToppingsCategoryService,
     private s3Client: S3ClientService,
     private branchService: BranchesService,
     private corridorService: CorridorsService,
-  ) {}
+  ) {
+    this.repo = new BaseRepository(productRepo);
+  }
   async createProduct(body: CreateProductDto) {
     const { corridorId, ...rest } = body;
     // const toppingsCategories = await Promise.all(toppingCategories.map(el => toppingCategoryService.create(el)));
-    const saved = await this.productRepo.create({
+    const saved = await this.repo.create({
       ...rest,
       corridorId,
     } as Product);
@@ -51,13 +55,13 @@ export class ProductService {
 
   async deleteProduct(productId: number) {
     const found = await this.getProductById(productId);
-    await this.productRepo.delete(productId);
+    await this.repo.delete(productId);
     await this.s3Client.deleteObject(found.image);
     return found;
   }
 
   async getProductsByCorridorId(corridorId: number) {
-    const result = await this.productRepo
+    const result = await this.repo
       .createQueryBuilder('products')
       .innerJoin('products.corridor', 'corridor')
       .leftJoinAndSelect('products.toppingsCategories', 'categories')
@@ -67,7 +71,7 @@ export class ProductService {
     return result;
   }
   async getProductsByStore(storeId: number) {
-    const result = await this.productRepo
+    const result = await this.repo
       .createQueryBuilder('products')
       .leftJoinAndSelect('products.toppingsCategories', 'categories')
       .innerJoin('products.corridor', 'corridor')
@@ -79,7 +83,7 @@ export class ProductService {
     return result;
   }
   async getProductById(productId: number) {
-    const result = await this.productRepo
+    const result = await this.repo
       .createQueryBuilder('products')
       .leftJoinAndSelect('products.toppingsCategories', 'categories')
       .leftJoinAndSelect('categories.toppings', 'toppings')
@@ -89,10 +93,11 @@ export class ProductService {
   }
   async updateProduct(productId: number, body: UpdateProductDto) {
     const { toppingCategories, ...rest } = body;
-    const found = await this.getProductById(productId);
-    this.productRepo.merge(found, rest);
-    const updated = await this.productRepo.save(found);
-    if (body.toppingCategories)
+
+    const updated = await this.repo.update(productId, {
+      ...rest,
+    } as Product);
+    if (toppingCategories)
       await this.toppingCategoryService.upsert(toppingCategories, updated);
 
     return updated;
@@ -128,7 +133,6 @@ export class ProductService {
     filtered.splice(body.index, 0, { ...productfound, corridorId: id });
     newCorridor.products = filtered.map((el, index) => ({ ...el, index }));
 
-    // await corridorService.updateCorridor(newCorridor.id, newCorridor);
     const promises = newCorridor.products.map((el) =>
       this.updateProduct(el.id, el),
     );
