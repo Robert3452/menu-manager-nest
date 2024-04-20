@@ -10,6 +10,7 @@ async function bootstrap() {
     .addTag('API MENU MANAGER NEST')
     .build();
   const app = await NestFactory.create(AppModule);
+  app.setGlobalPrefix('api');
   const document = SwaggerModule.createDocument(app, config);
   SwaggerModule.setup('docs', app, document);
   await app.listen(process.env.PORT || 3001);

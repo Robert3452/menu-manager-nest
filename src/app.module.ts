@@ -8,7 +8,6 @@ import { S3ClientModule } from './s3-client/s3-client.module';
 import { ConfigModule } from '@nestjs/config';
 import { join, resolve } from 'path';
 import { MenuModule } from './menu/menu.module';
-import { BranchesModule } from './branches/branches.module';
 import { StoresModule } from './stores/stores.module';
 import { BranchInfoModule } from './branch-info/branch-info.module';
 import config from './config';
@@ -16,14 +15,13 @@ import config from './config';
 @Module({
   imports: [
     DatabaseModule,
-    S3ClientModule,
     ConfigModule.forRoot({
       envFilePath: join(resolve(), '/.env'),
       isGlobal: true,
       load: [config],
     }),
+    S3ClientModule,
     MenuModule,
-    BranchesModule,
     StoresModule,
     BranchInfoModule,
   ],

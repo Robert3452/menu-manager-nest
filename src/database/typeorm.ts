@@ -15,7 +15,7 @@ const config: TypeOrmModuleOptions = {
   migrations: [join(resolve(), '/dist/database/migrations/*.js').toString()],
   autoLoadEntities: true,
   synchronize: false,
-  migrationsRun: true,
+  migrationsRun: false,
 };
 
 export default registerAs('typeorm', () => config);
