@@ -62,7 +62,8 @@ export class ScheduleService {
         (el) => el.weekday === body.weekday,
       );
       newWeekday = await this.weekDayScheduleService.update(
-        oldWeekday.id,
+        oldWeekday.scheduleId,
+        oldWeekday.weekday,
         body,
       );
       found.weekdaySchedules[index] = newWeekday;

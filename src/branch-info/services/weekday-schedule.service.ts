@@ -4,6 +4,7 @@ import { WeekdaySchedule } from 'src/database/Entity/WeekDaySchedule';
 import { InjectRepository } from '@nestjs/typeorm';
 import { Repository } from 'typeorm';
 import { UpdateWeekdayScheduleDto } from '../dto/update-weekday-schedule.dto';
+import { Weekdays } from 'src/database/Entity/Enum/WeekDaysEnum';
 
 @Injectable()
 export class WeekdayScheduleService {
@@ -42,7 +43,11 @@ export class WeekdayScheduleService {
         });
 
         if (existingSchedule) {
-          weekdaySchedule = await this.update(item.id, item);
+          weekdaySchedule = await this.update(
+            item.scheduleId,
+            item.weekday,
+            item,
+          );
         } else {
           // If the schedule doesn't exist, create a new one
           weekdaySchedule = await this.create(item);
@@ -55,9 +60,24 @@ export class WeekdayScheduleService {
       console.log(error);
     }
   }
-  async update(id: number, body: UpdateWeekdayScheduleDto) {
+  async update(
+    scheduleId: number,
+    weekday: Weekdays,
+    body: UpdateWeekdayScheduleDto,
+  ) {
     try {
-      const saved = await this.repo.update(id, body as WeekdaySchedule);
+      const weekdaySchedule = await this.repo
+        .createQueryBuilder('weekdays')
+        .innerJoin('weekday.schedule', 'schedule')
+        .where(
+          'schedule.scheduleId=:scheduleId and weekdays.weekday=:weekday',
+          { scheduleId, weekday },
+        )
+        .getOne();
+      const saved = await this.repo.update(weekdaySchedule.id, {
+        ...weekdaySchedule,
+        ...body,
+      });
       return saved;
     } catch (error) {
       throw error;

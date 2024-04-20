@@ -1,4 +1,4 @@
-import { IsEnum, IsString } from 'class-validator';
+import { IsEnum, IsNumber, IsString } from 'class-validator';
 import { AddressType } from 'src/database/Entity/Enum/AddressTypeEnum';
 import { StreetType } from 'src/database/Entity/Enum/StreetTypeEnum';
 
@@ -23,4 +23,6 @@ export class CreateAddressDto {
   phoneNumber: string;
   @IsString()
   references: string;
+  @IsNumber()
+  branchId: number;
 }

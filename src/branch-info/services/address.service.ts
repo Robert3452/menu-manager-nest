@@ -12,13 +12,12 @@ export class AddressService {
   constructor(
     @InjectRepository(Address) private addressRepository: Repository<Address>,
   ) {}
-  async create(branchId: number, body: CreateAddressDto) {
+  async create(body: CreateAddressDto) {
     try {
       const createdAddress = await this.addressRepository.create({
         ...body,
         streetType: StreetType[body.streetType],
         addressType: AddressType[body.addressType],
-        branchId,
       } as Address);
       return createdAddress;
     } catch (error) {
