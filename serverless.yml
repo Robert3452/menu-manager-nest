@@ -4,10 +4,10 @@ frameworkVersion: '3'
 useDotenv: true
 
 plugins:
-  - 'serverless-plugin-typescript'
   - serverless-offline
 
 provider:
+  stage: api
   name: aws
   runtime: nodejs20.x
   region: us-east-1
@@ -25,7 +25,7 @@ provider:
 functions:
   main: # The name of the lambda function
    # The module 'handler' is exported in the file 'src/lambda'
-   handler: src/lambda.handler
+   handler: .build/lambda.handler
    events:
       - http: ANY /
       - http: ANY {proxy+}
