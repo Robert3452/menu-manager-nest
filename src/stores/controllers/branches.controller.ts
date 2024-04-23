@@ -20,26 +20,31 @@ export class BranchesController {
     @Param('branchId') branchId: string,
     @Body() body: UpdateBranchDto,
   ) {
-    return this.brancheService.updateBranch(+branchId, body);
+    const data = await this.brancheService.updateBranch(+branchId, body);
+    return { data, message: 'Branch updated successfully', success: true };
   }
 
   @Delete(':branchId')
   async deleteBranch(@Param('branchId') branchId: string) {
-    return this.brancheService.deleteBranch(+branchId);
+    const data = await this.brancheService.deleteBranch(+branchId);
+    return { data, message: 'Branch deleted successfully', success: true };
   }
 
   @Get(':branchId')
   async getBranchById(@Param('branchId') branchId: string) {
-    return this.brancheService.getBranchById(+branchId);
+    const data = await this.brancheService.getBranchById(+branchId);
+    return { data, message: 'Branch by id', success: true };
   }
 
   @Get(':branchId/menu')
   async getCorridorsByBranch(@Param('branchId') branchId: string) {
-    return this.brancheService.getMenuBoard(+branchId);
+    const data = await this.brancheService.getMenuBoard(+branchId);
+    return { data, message: 'Menu board', success: true };
   }
 
   @Post()
   async createBranch(@Body() body: CreateBranchDto) {
-    return this.brancheService.createBranch(body);
+    const data = await this.brancheService.createBranch(body);
+    return { data, message: 'Branch created', success: true };
   }
 }

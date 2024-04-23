@@ -21,11 +21,21 @@ export class ToppingCategoriesController {
 
   @Get(':categoryId')
   async getToppingsByCategroy(@Param('categoryId') categoryId: string) {
-    return this.toppingService.getListByCategoryId(+categoryId);
+    const data = await this.toppingService.getListByCategoryId(+categoryId);
+    return {
+      data,
+      message: 'topping category view',
+      success: true,
+    };
   }
   @Post()
   async createToppingCategory(@Body() body: CreateToppingCategoryDto) {
-    return this.toppingCategoryService.create(body);
+    const data = await this.toppingCategoryService.create(body);
+    return {
+      data,
+      message: 'Topping cateogry saved',
+      success: true,
+    };
   }
 
   @Put(':categoryId')
@@ -33,11 +43,21 @@ export class ToppingCategoriesController {
     @Param('categoryId') categoryId: string,
     @Body() body: UpdateToppingCategoryDto,
   ) {
-    return this.toppingCategoryService.update(+categoryId, body);
+    const data = await this.toppingCategoryService.update(+categoryId, body);
+    return {
+      success: true,
+      message: 'Topping Category updated successfully',
+      data,
+    };
   }
 
   @Delete(':categoryId')
   async deleteCategory(@Param('categoryId') categoryId: string) {
-    return this.toppingCategoryService.delete(+categoryId);
+    const data = await this.toppingCategoryService.delete(+categoryId);
+    return {
+      success: true,
+      message: 'Topping Category deleted successfully',
+      data,
+    };
   }
 }

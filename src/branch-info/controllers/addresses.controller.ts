@@ -17,12 +17,22 @@ export class AddressesController {
 
   @Post()
   async createAddress(@Body() body: CreateAddressDto) {
-    return this.addressService.create(body);
+    const result = await this.addressService.create(body);
+    return {
+      success: true,
+      message: 'Address created successgully',
+      data: result,
+    };
   }
 
   @Get(':addressId')
   async getAddressById(@Param('addressId') addressId: string) {
-    return this.addressService.getAddressByBranchId(+addressId);
+    const result = await this.addressService.getAddressByBranchId(+addressId);
+    return {
+      success: true,
+      message: 'Addresses by branch',
+      data: result,
+    };
   }
 
   @Put(':addressId')
@@ -30,11 +40,21 @@ export class AddressesController {
     @Param('addressId') addressId: string,
     @Body() body: UpdateAddressDto,
   ) {
-    return this.addressService.update(+addressId, body);
+    const address = await this.addressService.update(+addressId, body);
+    return {
+      success: true,
+      message: 'Address updated successfully',
+      data: address,
+    };
   }
 
   @Delete(':addressId')
   async deleteAddres(@Param('addressId') addressId: string) {
-    return this.addressService.delete(+addressId);
+    const deleted = await this.addressService.delete(+addressId);
+    return {
+      success: true,
+      message: 'Address deleted successfully',
+      data: deleted,
+    };
   }
 }

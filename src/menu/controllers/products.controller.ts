@@ -31,12 +31,22 @@ export class ProductsController {
       file,
       bucket: 'menu-order',
     });
-    return this.productService.createProduct({ ...body, image });
+    const data = await this.productService.createProduct({ ...body, image });
+    return {
+      success: true,
+      message: 'Product created successfully',
+      data,
+    };
   }
 
   @Delete(':productId')
   async deleteProduct(@Param('productId') productId: string) {
-    return this.productService.deleteProduct(+productId);
+    const data = await this.productService.deleteProduct(+productId);
+    return {
+      success: true,
+      message: 'Product deleted successfully',
+      data,
+    };
   }
 
   @UseInterceptors(FileInterceptor('file'))
@@ -50,6 +60,14 @@ export class ProductsController {
       file,
       bucket: 'menu-order',
     });
-    return this.productService.updateProduct(+productId, { ...body, image });
+    const data = await this.productService.updateProduct(+productId, {
+      ...body,
+      image,
+    });
+    return {
+      success: true,
+      message: 'Product updated successfully',
+      data,
+    };
   }
 }

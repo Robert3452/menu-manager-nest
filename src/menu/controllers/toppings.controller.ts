@@ -9,7 +9,12 @@ export class ToppingsController {
 
   @Post()
   async createTopping(@Body() body: CreateToppingDto) {
-    return this.toppingService.create(body);
+    const data = await this.toppingService.create(body);
+    return {
+      data,
+      success: true,
+      message: 'Topping created successfully',
+    };
   }
 
   @Put(':toppingId')
@@ -17,11 +22,21 @@ export class ToppingsController {
     @Body() body: UpdateToppingDto,
     @Param('toppingId') toppingId: string,
   ) {
-    return this.toppingService.update(+toppingId, body);
+    const data = await this.toppingService.update(+toppingId, body);
+    return {
+      data,
+      success: true,
+      message: 'Topping updated successfully',
+    };
   }
 
   @Delete(':toppingId')
   async deleteTopping(@Param('toppingId') toppingId: string) {
-    return this.toppingService.delete(+toppingId);
+    const data = await this.toppingService.delete(+toppingId);
+    return {
+      data,
+      success: true,
+      message: 'Topping deleted successfully',
+    };
   }
 }

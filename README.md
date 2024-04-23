@@ -1,7 +1,8 @@
 # Cloud order Application backend service
 
 
-
+## Requirements
+* node version 20.x
 ## Description
 
 This application uses [Nest](https://github.com/nestjs/nest) framework TypeScript starter repository.

@@ -24,7 +24,8 @@ export class StoreController {
     @Body() body: CreateStoreDto,
     @UploadedFile() file: Express.Multer.File,
   ) {
-    return this.storeService.createStore(body, file);
+    const data = await this.storeService.createStore(body, file);
+    return { data, message: 'Store created successfully', success: true };
   }
 
   @UseInterceptors(FileInterceptor('file'))
@@ -34,25 +35,30 @@ export class StoreController {
     @UploadedFile() file: Express.Multer.File,
     @Body() body: UpdateStoreDto,
   ) {
-    return this.storeService.updateStore(+storeId, body, file);
+    const data = await this.storeService.updateStore(+storeId, body, file);
+    return { data, message: 'Store updated successfully', success: true };
   }
 
   @Delete(':storeId')
   async deleteStore(@Param('storeId') storeId: string) {
-    return this.storeService.deleteStore(+storeId);
+    const data = await this.storeService.deleteStore(+storeId);
+    return { data, message: 'Store deleted successfully', success: true };
   }
 
   @Get()
   async getAllStores() {
-    return this.storeService.getStores();
+    const data = await this.storeService.getStores();
+    return { data, message: 'List of Stores ', success: true };
   }
   @Get(':storeId')
   async getStoreById(@Param('storeId') storeId: string) {
-    return this.storeService.getStoreById(+storeId);
+    const data = await this.storeService.getStoreById(+storeId);
+    return { data, message: 'Store by id', success: true };
   }
 
   @Get(':storeId/branches')
   async getBranchesById(@Param('storeId') storeId: string) {
-    return this.storeService.getBranchesByStoreId(+storeId);
+    const data = await this.storeService.getBranchesByStoreId(+storeId);
+    return { data, message: 'List of branches by store id', success: true };
   }
 }

@@ -24,12 +24,22 @@ export class CorridorsController {
 
   @Get(':corridorId')
   async getCorridorById(@Param('corridorId') corridorId: string) {
-    return this.corridorService.getCorridorById(+corridorId);
+    const data = await this.corridorService.getCorridorById(+corridorId);
+    return {
+      success: true,
+      message: 'Record of corridor',
+      data,
+    };
   }
 
   @Post()
   async createCorridor(@Body() body: CreateCorridorDto) {
-    return this.corridorService.createCorridor(body);
+    const data = await this.corridorService.createCorridor(body);
+    return {
+      success: true,
+      message: 'Corridor created successfully',
+      data,
+    };
   }
 
   @Put(':corridorId')
@@ -37,28 +47,60 @@ export class CorridorsController {
     @Param('corridorId') corridorId: string,
     @Body() body: UpdateCorridorDto,
   ) {
-    return this.corridorService.updateCorridor(+corridorId, body);
+    const data = await this.corridorService.updateCorridor(+corridorId, body);
+    return {
+      success: true,
+      message: 'Corridor updated successfully',
+      data,
+    };
   }
 
   @Delete(':corridorId')
   async deleteCorridor(@Param('corridorId') corridorId: string) {
-    return this.corridorService.deleteCorridor(+corridorId);
+    const data = await this.corridorService.deleteCorridor(+corridorId);
+    return {
+      success: true,
+      message: 'Corridor Deleted Succcessfully',
+      data,
+    };
   }
 
   @Put('remove')
   async removeCorridor(@Query() query: RemoveCorridorDto) {
     const { branchId, corridorId } = query;
-    return this.corridorService.removeCorridorToBranch(corridorId, branchId);
+    const data = await this.corridorService.removeCorridorToBranch(
+      corridorId,
+      branchId,
+    );
+    return {
+      success: true,
+      message: 'Corridor successfully removed from the branch ' + branchId,
+      data,
+    };
   }
 
   @Put('add')
   async addCorridor(@Query() query: AddCorridorDto) {
     const { branchId, corridorId } = query;
-    return this.corridorService.addCorridorToBranch(corridorId, branchId);
+    const data = await this.corridorService.addCorridorToBranch(
+      corridorId,
+      branchId,
+    );
+    return {
+      success: true,
+      message:
+        'Corridor successfully added to the branch wiith branchId ' + branchId,
+      data,
+    };
   }
 
   @Put(':corridorId/clear-corridor')
   async clearCorridor(@Param('corridorId') corridorId: string) {
-    return this.productService.clearCorridor(+corridorId);
+    const data = await this.productService.clearCorridor(+corridorId);
+    return {
+      success: true,
+      message: 'Corridor cleared successfully',
+      data,
+    };
   }
 }

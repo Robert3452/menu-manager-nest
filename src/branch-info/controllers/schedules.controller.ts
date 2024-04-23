@@ -23,12 +23,22 @@ export class SchedulesController {
 
   @Post()
   async createSchedule(@Body() body: CreateScheduleDto) {
-    return this.scheduleService.create(body);
+    const result = await this.scheduleService.create(body);
+    return {
+      message: 'Schedule created Successfully',
+      success: true,
+      data: result,
+    };
   }
 
   @Get(':scheduleId')
   async getScheduleById(@Param('scheduleId') scheduleId: string) {
-    return this.scheduleService.getScheduleById(+scheduleId);
+    const result = await this.scheduleService.getScheduleById(+scheduleId);
+    return {
+      success: true,
+      data: result,
+      message: 'Schedule view',
+    };
   }
 
   @Post(':scheduleId/weekdays')
@@ -44,17 +54,39 @@ export class SchedulesController {
     @Param('weekday') weekday: Weekdays,
     @Body() body: UpdateWeekdayScheduleDto,
   ) {
-    return this.weekdaySchedule.update(+scheduleId, weekday, body);
+    const result = await this.weekdaySchedule.update(
+      +scheduleId,
+      weekday,
+      body,
+    );
+    return {
+      success: true,
+      message: 'Weekday schedule created',
+      data: result,
+    };
   }
   @Delete(':scheduleId')
   async deleteScheduleById(@Param('scheduleId') scheduleId: string) {
-    return this.scheduleService.delete(+scheduleId);
+    const result = await this.scheduleService.delete(+scheduleId);
+    return {
+      success: true,
+      message: 'Schedule deleted successfully',
+      data: result,
+    };
   }
   @Delete(':scheduleId/weekdays/:weekday')
   async deleteWeekday(
     @Param('scheduleId') scheduleId: string,
     @Param('weekday') weekday: Weekdays,
   ) {
-    return this.scheduleService.deleteWeekdaySchedule(+scheduleId, weekday);
+    const result = await this.scheduleService.deleteWeekdaySchedule(
+      +scheduleId,
+      weekday,
+    );
+    return {
+      success: true,
+      message: 'Weekday removed',
+      data: result,
+    };
   }
 }
