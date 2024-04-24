@@ -18,7 +18,7 @@ export class CorridorsService {
   }
 
   async getCorridorsByBranch(branchId: number) {
-    const corridors = await this.corridorRepo
+    const corridors = await this.repo
       .createQueryBuilder('corridors')
       .innerJoinAndSelect('corridors.branches', 'branches')
       .innerJoinAndSelect('branches.store', 'store')
@@ -29,7 +29,7 @@ export class CorridorsService {
   }
 
   async getCorridorById(corridorId: number) {
-    const corridor = await this.corridorRepo
+    const corridor = await this.repo
       .createQueryBuilder('corridors')
       .innerJoinAndSelect('corridors.branches', 'branches')
       .leftJoinAndSelect('corridors.products', 'products')
@@ -44,7 +44,7 @@ export class CorridorsService {
     const { branchesIds, ...req } = body;
     const corridor = await this.getCorridorById(corridorId);
     if (!corridor) throw new NotFoundException('Corridor not found');
-    const updated = await this.corridorRepo.update(corridorId, {
+    const updated = await this.repo.update(corridorId, {
       ...corridor,
       ...req,
     });
@@ -55,7 +55,7 @@ export class CorridorsService {
     const corridor = await this.getCorridorById(corridorId);
     const branch = await this.branchService.getBranchById(branchId);
     corridor.branches = [...corridor.branches, branch];
-    const updated = await this.corridorRepo.update(corridorId, corridor);
+    const updated = await this.repo.update(corridorId, corridor);
     return updated;
   }
 
@@ -64,7 +64,7 @@ export class CorridorsService {
     corridor.branches = corridor.branches.filter(
       (branch) => branch.id !== branchId,
     );
-    const updated = await this.corridorRepo.update(corridorId, corridor);
+    const updated = await this.repo.update(corridorId, corridor);
     return updated;
   }
 
@@ -73,7 +73,7 @@ export class CorridorsService {
     const branches = await Promise.all(
       branchesIds.map((branchId) => this.branchService.getById(branchId)),
     );
-    const created = await this.corridorRepo.create({
+    const created = await this.repo.create({
       ...req,
       branches,
     } as Corridor);
@@ -81,7 +81,7 @@ export class CorridorsService {
   }
 
   async deleteCorridor(corridorId: number) {
-    const deleted = await this.corridorRepo.delete(corridorId);
+    const deleted = await this.repo.delete(corridorId);
     return deleted;
   }
 }

@@ -9,6 +9,7 @@ import { S3ClientService } from 'src/s3-client/s3-client.service';
 import { BranchesService } from 'src/stores/services/branches.service';
 import { CorridorsService } from './corridors.service';
 import { BaseRepository } from 'src/database/BaseRepository';
+import { MoveProductCardDto } from '../dto/move-product-card.dto';
 
 @Injectable()
 export class ProductService {
@@ -103,14 +104,18 @@ export class ProductService {
     return updated;
   }
 
-  async moveCard(branchId: number, body: UpdateProductDto) {
+  async moveCard(body: MoveProductCardDto) {
+    const { branchId, corridorId, id: productId, index: order } = body;
     const branchFound = await this.branchService.getMenuBoard(branchId);
-    const productfound = await this.getProductById(body.id);
-
+    const productfound = await this.getProductById(productId);
+    // id
+    // corridorId
+    // index
+    // branchId
     // move to another corridor
     if (
-      typeof body?.corridorId !== 'undefined' &&
-      productfound.corridorId !== body?.corridorId
+      typeof corridorId !== 'undefined' &&
+      productfound.corridorId !== corridorId
     ) {
       const oldCorridor = await this.corridorService.getCorridorById(
         productfound.corridorId,
@@ -124,13 +129,13 @@ export class ProductService {
       );
       await Promise.all(proms);
     }
-    const id = body?.corridorId || productfound.corridorId;
+    const id = corridorId || productfound.corridorId;
     const newCorridor = await this.corridorService.getCorridorById(id);
 
     const filtered = newCorridor.products.filter(
       (el) => el.id !== productfound.id,
     );
-    filtered.splice(body.index, 0, { ...productfound, corridorId: id });
+    filtered.splice(order, 0, { ...productfound, corridorId: id });
     newCorridor.products = filtered.map((el, index) => ({ ...el, index }));
 
     const promises = newCorridor.products.map((el) =>

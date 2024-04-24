@@ -13,6 +13,7 @@ import { FileInterceptor } from '@nestjs/platform-express';
 import { CreateProductDto } from '../dto/create-product.dto';
 import { S3ClientService } from 'src/s3-client/s3-client.service';
 import { UpdateProductDto } from '../dto/update-product.dto';
+import { MoveProductCardDto } from '../dto/move-product-card.dto';
 
 @Controller('products')
 export class ProductsController {
@@ -21,21 +22,34 @@ export class ProductsController {
     private s3Client: S3ClientService,
   ) {}
 
-  @UseInterceptors(FileInterceptor('file'))
+  @UseInterceptors(FileInterceptor('image'))
   @Post()
   async createProduct(
     @Body() body: CreateProductDto,
-    @UploadedFile() file: Express.Multer.File,
+    @UploadedFile() image: Express.Multer.File,
   ) {
-    const image = await this.s3Client.createObject({
-      file,
+    const createdImage = await this.s3Client.createObject({
+      file: image,
       bucket: 'menu-order',
     });
-    const data = await this.productService.createProduct({ ...body, image });
+    const data = await this.productService.createProduct({
+      ...body,
+      image: createdImage,
+    });
     return {
       success: true,
       message: 'Product created successfully',
       data,
+    };
+  }
+
+  @Put('move-card')
+  async moveProductCard(@Body() body: MoveProductCardDto) {
+    const data = await this.productService.moveCard(body);
+    return {
+      data,
+      success: true,
+      message: 'Product moved successfully',
     };
   }
 

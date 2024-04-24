@@ -25,7 +25,7 @@ provider:
 functions:
   main: # The name of the lambda function
    # The module 'handler' is exported in the file '.build/lambda'
-   handler: .build/lambda.handler
+   handler: dist/lambda.handler
    events:
       - http: ANY /
       - http: ANY {proxy+}
