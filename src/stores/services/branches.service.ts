@@ -65,6 +65,8 @@ export class BranchesService {
       .createQueryBuilder('branches')
       .leftJoinAndSelect('branches.corridors', 'corridors')
       .leftJoinAndSelect('corridors.products', 'products')
+      .leftJoinAndSelect('products.toppingsCategories', 'categories')
+      .leftJoinAndSelect('categories.toppings', 'toppings')
       .where('branches.branchId=:branchId', { branchId })
       .orderBy('products.index', 'ASC')
       .getOne();

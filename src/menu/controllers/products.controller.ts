@@ -2,6 +2,7 @@ import {
   Body,
   Controller,
   Delete,
+  Get,
   Param,
   Post,
   Put,
@@ -43,6 +44,12 @@ export class ProductsController {
     };
   }
 
+  @Get(':productId')
+  async getProductById(@Param('productId') productId: string) {
+    const data = await this.productService.getProductById(+productId);
+    return { data, succes: true, message: 'Product detail' };
+  }
+
   @Put('move-card')
   async moveProductCard(@Body() body: MoveProductCardDto) {
     const data = await this.productService.moveCard(body);
@@ -70,13 +77,15 @@ export class ProductsController {
     @Body() body: UpdateProductDto,
     @UploadedFile() file: Express.Multer.File,
   ) {
-    const image = await this.s3Client.createObject({
-      file,
-      bucket: 'menu-order',
-    });
+    let image: string;
+    if (file)
+      image = await this.s3Client.createObject({
+        file,
+        bucket: 'menu-order',
+      });
     const data = await this.productService.updateProduct(+productId, {
       ...body,
-      image,
+      image: image ? image : body?.image,
     });
     return {
       success: true,
