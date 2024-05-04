@@ -18,8 +18,8 @@ export class ToppingsCategory {
   @Column({ name: 'title', type: 'varchar', length: 50, unique: true })
   title: string;
 
-  @Column({ name: 'subtitle', type: 'varchar', length: 50, nullable: true })
-  subtitle: string;
+  @Column({ name: 'mandatory', type: 'boolean', default: false })
+  mandatory: boolean;
 
   @Column({ name: 'minToppingsForCategory', type: 'integer' })
   minToppingsForCategory: number;
