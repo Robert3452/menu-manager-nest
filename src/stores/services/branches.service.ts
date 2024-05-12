@@ -69,6 +69,8 @@ export class BranchesService {
       .leftJoinAndSelect('categories.toppings', 'toppings')
       .where('branches.branchId=:branchId', { branchId })
       .orderBy('products.index', 'ASC')
+      .addOrderBy('categories.index', 'ASC')
+      .addOrderBy('toppings.index', 'ASC')
       .getOne();
     return menu;
   }
