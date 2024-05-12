@@ -10,7 +10,7 @@ import { Schedule } from './Entity/Schedule';
 import { Store } from './Entity/Store';
 import { Tag } from './Entity/Tag';
 import { Topping } from './Entity/Topping';
-import { ToppingsCategory } from './Entity/ToppingsCategories';
+import { ToppingsCategory } from './Entity/ToppingCategories';
 import { Weekday } from './Entity/Weekday';
 import { WeekdaySchedule } from './Entity/WeekDaySchedule';
 @Global()

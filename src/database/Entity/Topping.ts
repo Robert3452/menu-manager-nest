@@ -5,7 +5,7 @@ import {
   ManyToOne,
   PrimaryGeneratedColumn,
 } from 'typeorm';
-import { ToppingsCategory } from './ToppingsCategories';
+import { ToppingsCategory } from './ToppingCategories';
 
 @Entity({ name: 'toppings' })
 export class Topping {

@@ -11,6 +11,7 @@ export class UpdateProductDto extends PartialType(CreateProduct) {
   id?: number;
 
   @IsArray()
+  @IsOptional()
   @Type(() => UpdateToppingCategoryDto)
   toppingCategories?: UpdateToppingCategoryDto[];
 }

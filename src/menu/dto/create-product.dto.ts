@@ -1,5 +1,5 @@
 import { Type } from 'class-transformer';
-import { IsNumber, IsString } from 'class-validator';
+import { IsBoolean, IsNumber, IsString } from 'class-validator';
 import { CreateToppingCategoryDto } from 'src/menu/dto/create-toppings-category.dto';
 
 export class CreateProductDto {
@@ -11,6 +11,8 @@ export class CreateProductDto {
   content: string;
   @IsString()
   image: string;
+  @IsBoolean()
+  mandatory: boolean;
   @IsNumber()
   realPrice: number;
   @IsNumber()

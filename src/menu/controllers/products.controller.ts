@@ -71,26 +71,41 @@ export class ProductsController {
   }
 
   @UseInterceptors(FileInterceptor('file'))
+  @Put(':productId/image')
+  async updateImageProduct(
+    @Param('productId') productId: string,
+    @UploadedFile() file: Express.Multer.File,
+  ) {
+    const image = await this.s3Client.createObject({
+      file,
+      bucket: 'menu-order',
+    });
+    const updated = await this.productService.updateProduct(+productId, {
+      image,
+    });
+    return {
+      success: true,
+      message: 'Product image updated successfully',
+      data: updated,
+    };
+  }
   @Put(':productId')
   async updateProduct(
     @Param('productId') productId: string,
     @Body() body: UpdateProductDto,
-    @UploadedFile() file: Express.Multer.File,
   ) {
-    let image: string;
-    if (file)
-      image = await this.s3Client.createObject({
-        file,
-        bucket: 'menu-order',
+    try {
+      const data = await this.productService.updateProduct(+productId, {
+        ...body,
       });
-    const data = await this.productService.updateProduct(+productId, {
-      ...body,
-      image: image ? image : body?.image,
-    });
-    return {
-      success: true,
-      message: 'Product updated successfully',
-      data,
-    };
+      return {
+        success: true,
+        message: 'Product updated successfully',
+        data,
+      };
+    } catch (error) {
+      console.log(error);
+      throw error;
+    }
   }
 }

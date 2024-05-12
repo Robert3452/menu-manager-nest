@@ -1,5 +1,11 @@
 import { Type } from 'class-transformer';
-import { IsArray, IsEnum, IsNumber, IsString } from 'class-validator';
+import {
+  IsArray,
+  IsBoolean,
+  IsEnum,
+  IsNumber,
+  IsString,
+} from 'class-validator';
 import { ToppingType } from 'src/database/Entity/Enum/ToppingTypeEnum';
 import { CreateToppingDto } from 'src/menu/dto/create-topping.dto';
 
@@ -13,7 +19,8 @@ export class CreateToppingCategoryDto {
 
   @IsNumber()
   maxToppingsForCategory: number;
-
+  @IsBoolean()
+  mandatory: boolean;
   @IsEnum(ToppingType)
   toppingType: ToppingType;
 

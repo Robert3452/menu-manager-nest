@@ -1,10 +1,12 @@
-import boom from '@hapi/boom';
+/* eslint-disable @typescript-eslint/ban-types */
+import { NotFoundException } from '@nestjs/common';
 import { Repository, SelectQueryBuilder } from 'typeorm';
 import { IQuery } from './dto/Query';
 import { IBaseRepository } from './IBaseRepository';
 export interface PublicEntity {
   id: number;
 }
+// export class BaseRepository<T extends PublicEntity>
 export class BaseRepository<T extends PublicEntity>
   implements IBaseRepository<T>
 {
@@ -13,7 +15,8 @@ export class BaseRepository<T extends PublicEntity>
   constructor(repository: Repository<T>) {
     this.baseRepository = repository;
   }
-  async delete(id: any): Promise<T> {
+
+  async delete(id: number): Promise<T> {
     const found = await this.findOneById(id);
     await this.baseRepository.delete(id);
     return found;
@@ -26,12 +29,13 @@ export class BaseRepository<T extends PublicEntity>
   }
   async update(id: any, body: T): Promise<T> {
     try {
-      const found = await this.findOneById(id);
+      const found = await this.findOneByIdAndFail(id);
       this.baseRepository.merge(found, body);
       const saved = await this.baseRepository.save(found);
       return saved;
     } catch (error) {
       console.log(error);
+      throw error;
     }
   }
   async list(query: IQuery): Promise<T[]> {
@@ -43,11 +47,16 @@ export class BaseRepository<T extends PublicEntity>
       .getMany();
     return result;
   }
-  async findOneById(id: any): Promise<T> {
-    const found = await this.baseRepository.findOneBy({ id });
-    if (!found) throw boom.notFound('Item not found with id: ' + id);
+  async findOneByIdAndFail(id: any): Promise<T> {
+    const found = await this.baseRepository.findOne({ where: { id } });
+    if (!found) throw new NotFoundException('Item not found with id: ' + id);
     return found;
   }
+  async findOneById(id: any): Promise<T> {
+    const found = await this.baseRepository.findOneBy({ id });
+    return found;
+  }
+
   createQueryBuilder(alias: string): SelectQueryBuilder<T> {
     return this.baseRepository.createQueryBuilder(alias);
   }

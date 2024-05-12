@@ -15,7 +15,7 @@ export class ToppingsCategory {
   @PrimaryGeneratedColumn({ name: 'toppingsCategoryId' })
   id: number;
 
-  @Column({ name: 'title', type: 'varchar', length: 50, unique: true })
+  @Column({ name: 'title', type: 'varchar', length: 50, unique: false })
   title: string;
 
   @Column({ name: 'mandatory', type: 'boolean', default: false })
@@ -33,7 +33,7 @@ export class ToppingsCategory {
   @Column({ name: 'index', type: 'integer' })
   index: number;
 
-  @ManyToOne(() => Product, (product) => product.toppingsCategories, {
+  @ManyToOne(() => Product, (product) => product.toppingCategories, {
     cascade: true,
     onDelete: 'CASCADE',
   })

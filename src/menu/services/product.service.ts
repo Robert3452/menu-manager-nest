@@ -1,15 +1,16 @@
-import { Injectable } from '@nestjs/common';
+import { Injectable, NotFoundException } from '@nestjs/common';
 import { InjectRepository } from '@nestjs/typeorm';
+import { BaseRepository } from 'src/database/BaseRepository';
 import { Product } from 'src/database/Entity/Product';
-import { Repository } from 'typeorm';
-import { UpdateProductDto } from '../dto/update-product.dto';
-import { CreateProductDto } from '../dto/create-product.dto';
+import { ToppingsCategory } from 'src/database/Entity/ToppingCategories';
 import { ToppingsCategoryService } from 'src/menu/services/toppings-category.service';
 import { S3ClientService } from 'src/s3-client/s3-client.service';
 import { BranchesService } from 'src/stores/services/branches.service';
-import { CorridorsService } from './corridors.service';
-import { BaseRepository } from 'src/database/BaseRepository';
+import { Repository } from 'typeorm';
+import { CreateProductDto } from '../dto/create-product.dto';
 import { MoveProductCardDto } from '../dto/move-product-card.dto';
+import { UpdateProductDto } from '../dto/update-product.dto';
+import { CorridorsService } from './corridors.service';
 
 @Injectable()
 export class ProductService {
@@ -25,10 +26,12 @@ export class ProductService {
   }
   async createProduct(body: CreateProductDto) {
     const { corridorId, ...rest } = body;
-    // const toppingsCategories = await Promise.all(toppingCategories.map(el => toppingCategoryService.create(el)));
     const saved = await this.repo.create({
       ...rest,
       corridorId,
+      toppingCategories: [...body.toppingCategories] as ToppingsCategory[],
+      id: null,
+      corridor: null,
     } as Product);
     return saved;
   }
@@ -65,7 +68,7 @@ export class ProductService {
     const result = await this.repo
       .createQueryBuilder('products')
       .innerJoin('products.corridor', 'corridor')
-      .leftJoinAndSelect('products.toppingsCategories', 'categories')
+      .leftJoinAndSelect('products.toppingCategories', 'categories')
       .leftJoinAndSelect('categories.toppings', 'toppings')
       .where('corridor.corridorId=:corridorId', { corridorId })
       .getMany();
@@ -74,7 +77,7 @@ export class ProductService {
   async getProductsByStore(storeId: number) {
     const result = await this.repo
       .createQueryBuilder('products')
-      .leftJoinAndSelect('products.toppingsCategories', 'categories')
+      .leftJoinAndSelect('products.toppingCategories', 'categories')
       .innerJoin('products.corridor', 'corridor')
       .innerJoin('corridor.branches', 'branches')
       .innerJoin('branches.store', 'store')
@@ -86,7 +89,7 @@ export class ProductService {
   async getProductById(productId: number) {
     const result = await this.repo
       .createQueryBuilder('products')
-      .leftJoinAndSelect('products.toppingsCategories', 'categories')
+      .leftJoinAndSelect('products.toppingCategories', 'categories')
       .leftJoinAndSelect('categories.toppings', 'toppings')
       .where('products.productId=:productId', { productId })
       .getOne();
@@ -94,9 +97,10 @@ export class ProductService {
   }
   async updateProduct(productId: number, body: UpdateProductDto) {
     const { toppingCategories, ...rest } = body;
-
-    const updated = await this.repo.update(productId, {
+    const found = await this.repo.findOneById(+productId);
+    const updated = await this.repo.update(+productId, {
       ...rest,
+      image: body?.image ? body?.image : found.image,
     } as Product);
     if (toppingCategories)
       await this.toppingCategoryService.upsert(toppingCategories, updated);
@@ -105,43 +109,74 @@ export class ProductService {
   }
 
   async moveCard(body: MoveProductCardDto) {
-    const { branchId, corridorId, id: productId, index: order } = body;
+    const { branchId, corridorId, id: productId, index } = body;
     const branchFound = await this.branchService.getMenuBoard(branchId);
-    const productfound = await this.getProductById(productId);
-    // id
-    // corridorId
-    // index
-    // branchId
-    // move to another corridor
-    if (
-      typeof corridorId !== 'undefined' &&
-      productfound.corridorId !== corridorId
-    ) {
-      const oldCorridor = await this.corridorService.getCorridorById(
-        productfound.corridorId,
-      );
-      oldCorridor.products = oldCorridor.products
-        .filter((el) => el.id !== productfound.id)
-        .map((el, index) => ({ ...el, index }));
-      await this.corridorService.updateCorridor(oldCorridor.id, oldCorridor);
-      const proms = oldCorridor.products.map((el) =>
-        this.updateProduct(el.id, el),
-      );
-      await Promise.all(proms);
+    const productFound = await this.getProductById(productId);
+
+    if (!branchFound)
+      throw new NotFoundException(`Branch id notFound, id: ${branchId}`);
+
+    const prevCorridor = branchFound.corridors.find(
+      (el) => el.id == productFound.corridorId,
+    );
+    // const prevIndexProduct = branchFound.corridors[
+    //   prevCorridor.index
+    // ].products.find((el) => el.id == productFound.id)?.index;
+
+    const newCorridor = branchFound.corridors.find((el) => el.id == corridorId);
+
+    if (!newCorridor || prevCorridor.id == newCorridor.id) {
+      // remove product inside an array
+      prevCorridor.products.splice(productFound.index, 1);
+      // put in the new order
+      prevCorridor.products.splice(index, 0, productFound);
+
+      const prevPromises = prevCorridor.products
+        // Reasign indexes
+        .map((product, index) => {
+          return {
+            ...product,
+            index,
+          };
+        })
+        // Bulk update
+        .map((item) => this.updateProduct(item.id, item));
+      const prevUpdatedProducts = await Promise.all(prevPromises);
+
+      branchFound.corridors[prevCorridor.index].products = prevUpdatedProducts;
+    } else {
+      // remove product inside an array
+      prevCorridor.products.splice(productFound.index, 1);
+
+      const prevCorridorPromises = prevCorridor.products
+        // Reasign order
+        .map((product, index) => {
+          return {
+            ...product,
+            index,
+          };
+        }) // Bulk update
+        .map((item) => this.updateProduct(item.id, item));
+
+      const prevCorridorProds = await Promise.all(prevCorridorPromises);
+      // put the product in the new corridor
+      newCorridor.products.splice(index, 0, { ...productFound, corridorId });
+      const currCorridorPromises = newCorridor.products
+        // reasign order
+        .map((product, index) => {
+          return {
+            ...product,
+            index,
+          };
+        }) // Bulk updated
+        .map((item) => this.updateProduct(item.id, item));
+
+      const currentCorriodrProds = await Promise.all(currCorridorPromises);
+
+      branchFound.corridors[prevCorridor.index].products = prevCorridorProds;
+      branchFound.corridors[newCorridor.index].products = currentCorriodrProds;
     }
-    const id = corridorId || productfound.corridorId;
-    const newCorridor = await this.corridorService.getCorridorById(id);
 
-    const filtered = newCorridor.products.filter(
-      (el) => el.id !== productfound.id,
-    );
-    filtered.splice(order, 0, { ...productfound, corridorId: id });
-    newCorridor.products = filtered.map((el, index) => ({ ...el, index }));
-
-    const promises = newCorridor.products.map((el) =>
-      this.updateProduct(el.id, el),
-    );
-    await Promise.all(promises);
-    return this.branchService.getBranchById(branchFound.id);
+    return branchFound;
   }
 }

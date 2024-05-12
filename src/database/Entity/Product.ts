@@ -7,7 +7,7 @@ import {
   PrimaryGeneratedColumn,
 } from 'typeorm';
 import { Corridor } from './Corridor';
-import { ToppingsCategory } from './ToppingsCategories';
+import { ToppingsCategory } from './ToppingCategories';
 
 @Entity({ name: 'products' })
 export class Product {
@@ -42,5 +42,5 @@ export class Product {
     () => ToppingsCategory,
     (toppingsCategory) => toppingsCategory.product,
   )
-  toppingsCategories: ToppingsCategory[];
+  toppingCategories: ToppingsCategory[];
 }
