@@ -13,4 +13,6 @@ export class CreateToppingDto {
   index: number;
   @IsNumber()
   maxLimit: number;
+  @IsNumber()
+  toppingCategoryId: number;
 }

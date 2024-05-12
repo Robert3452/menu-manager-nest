@@ -17,9 +17,14 @@ export class BaseRepository<T extends PublicEntity>
   }
 
   async delete(id: number): Promise<T> {
-    const found = await this.findOneById(id);
-    await this.baseRepository.delete(id);
-    return found;
+    try {
+      const found = await this.findOneById(id);
+      await this.baseRepository.delete(id);
+      return found;
+    } catch (error) {
+      console.log(error);
+      throw error;
+    }
   }
 
   async create(body: T): Promise<T> {

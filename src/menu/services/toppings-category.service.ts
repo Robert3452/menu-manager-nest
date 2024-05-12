@@ -56,6 +56,7 @@ export class ToppingsCategoryService {
       const toppingsCategory = await this.repo.findOneById(id);
       await this.toppingService.upsert(
         toppings.map((el) => ({ ...el, toppingsCategory }) as Topping),
+        toppingsCategory,
       );
     }
     const result = await this.repo.update(id, {
@@ -65,51 +66,47 @@ export class ToppingsCategoryService {
     return result;
   }
 
-  async upsert(body: UpdateToppingCategoryDto[], product: Product) {
-    const upsertPromises = body.map(async (category) => {
-      const found = await this.repo.findOneById(category?.id);
-      // If remove is true, remove it.
-      if (category.remove) {
-        await this.delete(category.id);
-      }
-      // if category not found, create it
-      if (!found || !category?.id) {
-        const created = await this.repo.create({
-          ...category,
-          product,
-        } as ToppingsCategory);
-        const upsertToppings = await this.toppingService.upsert([
-          ...category.toppings.map(
-            (topping) =>
-              ({
-                ...topping,
-                toppingCategoryId: created.id,
-                toppingsCategory: created,
-              }) as Topping,
-          ),
-        ] as Topping[]);
-        return { ...created, toppings: upsertToppings };
-        // else update it
-      } else {
-        const updated = await this.repo.update(category?.id, {
-          ...category,
-          product,
-        } as ToppingsCategory);
-        const upsertToppings = await this.toppingService.upsert([
-          ...category.toppings.map(
-            (topping) =>
-              ({
-                ...topping,
-                toppingCategoryId: updated.id,
-                toppingsCategory: updated,
-              }) as Topping,
-          ),
-        ] as Topping[]);
-        return { ...updated, toppings: upsertToppings };
-      }
-    });
+  async upsert(
+    body: UpdateToppingCategoryDto[],
+    product: Product,
+  ): Promise<ToppingsCategory[]> {
+    const upsertPromises = body.map(
+      async (category): Promise<UpdateToppingCategoryDto> => {
+        let currCategory: ToppingsCategory;
+        const found = await this.repo.findOneById(category?.id);
+        // If remove is true, remove it.
+        if (found && category.remove) {
+          await this.delete(category.id);
+          return null;
+        }
+        // if category not found, create it
+        if (!found || !category?.id) {
+          currCategory = await this.repo.create({
+            ...category,
+            product,
+          } as ToppingsCategory);
+          // else update it
+        } else {
+          currCategory = await this.repo.update(category?.id, {
+            ...category,
+            product,
+          } as ToppingsCategory);
+        }
+        return { ...currCategory, toppings: category.toppings };
+        // upsert the toppings inside the array
+      },
+    );
     const categories = await Promise.all(upsertPromises);
-    return categories;
+    const categoriesPromise = categories
+      .filter((el) => el)
+      .map(async (category): Promise<ToppingsCategory> => {
+        const toppings = await this.toppingService.upsert(category.toppings, {
+          ...category,
+        } as ToppingsCategory);
+        return { ...category, toppings } as ToppingsCategory;
+      });
+    const currCategories = await Promise.all(categoriesPromise);
+    return currCategories;
   }
 
   async getById(id: number) {

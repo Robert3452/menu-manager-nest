@@ -5,6 +5,7 @@ import { Topping } from 'src/database/Entity/Topping';
 import { Repository } from 'typeorm';
 import { CreateToppingDto } from '../dto/create-topping.dto';
 import { UpdateToppingDto } from '../dto/update-topping.dto';
+import { ToppingsCategory } from 'src/database/Entity/ToppingCategories';
 
 @Injectable()
 export class ToppingsService {
@@ -26,30 +27,36 @@ export class ToppingsService {
     return updated;
   }
 
-  async upsert(body: UpdateToppingDto[]) {
-    const upsertPromises = body.map(async (el) => {
+  async upsert(
+    toppings: UpdateToppingDto[],
+    category: ToppingsCategory,
+  ): Promise<Topping[]> {
+    const upsertPromises = toppings.map(async (item): Promise<Topping> => {
       try {
-        const found = await this.repo.findOneById(el?.id);
-        if (el.remove) {
-          await this.repo.delete(el.id);
+        const topping = {
+          ...item,
+          toppingCategoryId: category.id,
+        } as UpdateToppingDto;
+        let currTopping: Topping;
+        const found = await this.repo.findOneById(topping?.id);
+        if (found && topping.remove) {
+          await this.repo.delete(topping.id);
+          return null;
         }
-        if (!found || !el?.id) {
-          const created = await this.repo.create({
-            ...el,
-          } as Topping);
-          return created;
+        if (!found || !topping?.id) {
+          currTopping = await this.repo.create({ ...topping } as Topping);
         } else {
-          const updated = await this.repo.update(el?.id, { ...el } as Topping);
-          return updated;
+          currTopping = await this.repo.update(topping?.id, {
+            ...topping,
+          } as Topping);
         }
+        return currTopping;
       } catch (error) {
-        return;
+        throw error;
       }
     });
-    const toppings = await Promise.all(upsertPromises);
-    // const result = await this.repo.baseRepository.upsert(arr, ["'toppingId'"]);
-    return toppings;
-    // return result;
+    const arrToppings = await Promise.all(upsertPromises);
+    return arrToppings.filter((el) => el);
   }
 
   async bulkDelete(ids: number[]) {
