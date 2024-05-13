@@ -24,15 +24,35 @@ export class ProductService {
   ) {
     this.repo = new BaseRepository(productRepo);
   }
+  async updateProduct(productId: number, body: UpdateProductDto) {
+    const { toppingCategories, ...rest } = body;
+    const found = await this.repo.findOneById(+productId);
+    const updated = await this.repo.update(+productId, {
+      ...rest,
+      image: body?.image ? body?.image : found.image,
+    } as Product);
+    if (toppingCategories)
+      updated.toppingCategories = await this.toppingCategoryService.upsert(
+        toppingCategories,
+        updated,
+      );
+
+    return updated;
+  }
   async createProduct(body: CreateProductDto) {
     const { corridorId, ...rest } = body;
     const saved = await this.repo.create({
       ...rest,
       corridorId,
-      toppingCategories: [...body.toppingCategories] as ToppingsCategory[],
+      toppingCategories: [] as ToppingsCategory[],
       id: null,
       corridor: null,
     } as Product);
+    if (rest.toppingCategories)
+      saved.toppingCategories = await this.toppingCategoryService.upsert(
+        rest.toppingCategories,
+        saved,
+      );
     return saved;
   }
   async clearCorridor(corridorId: number) {
@@ -94,18 +114,6 @@ export class ProductService {
       .where('products.productId=:productId', { productId })
       .getOne();
     return result;
-  }
-  async updateProduct(productId: number, body: UpdateProductDto) {
-    const { toppingCategories, ...rest } = body;
-    const found = await this.repo.findOneById(+productId);
-    const updated = await this.repo.update(+productId, {
-      ...rest,
-      image: body?.image ? body?.image : found.image,
-    } as Product);
-    if (toppingCategories)
-      await this.toppingCategoryService.upsert(toppingCategories, updated);
-
-    return updated;
   }
 
   async moveCard(body: MoveProductCardDto) {
