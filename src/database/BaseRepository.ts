@@ -28,9 +28,13 @@ export class BaseRepository<T extends PublicEntity>
   }
 
   async create(body: T): Promise<T> {
-    const created = this.baseRepository.create(body);
-    const saved = await this.baseRepository.save(created);
-    return saved;
+    try {
+      const created = this.baseRepository.create(body);
+      const saved = await this.baseRepository.save({ ...created } as T);
+      return saved;
+    } catch (error) {
+      throw error;
+    }
   }
   async update(id: any, body: T): Promise<T> {
     try {

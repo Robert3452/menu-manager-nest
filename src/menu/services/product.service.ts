@@ -41,12 +41,15 @@ export class ProductService {
   }
   async createProduct(body: CreateProductDto) {
     const { corridorId, ...rest } = body;
+    const currCorridor = await this.corridorService.getCorridorById(corridorId);
+    const index = currCorridor.products.length;
     const saved = await this.repo.create({
       ...rest,
       corridorId,
+      index: rest?.index || index,
       toppingCategories: [] as ToppingsCategory[],
       id: null,
-      corridor: null,
+      corridor: currCorridor,
     } as Product);
     if (rest.toppingCategories)
       saved.toppingCategories = await this.toppingCategoryService.upsert(

@@ -23,19 +23,19 @@ export class ProductsController {
     private s3Client: S3ClientService,
   ) {}
 
-  @UseInterceptors(FileInterceptor('file'))
+  // @UseInterceptors(FileInterceptor('file'))
   @Post()
   async createProduct(
     @Body() body: CreateProductDto,
-    @UploadedFile() file: Express.Multer.File,
+    // @UploadedFile() file: Express.Multer.File,
   ) {
-    const createdImage = await this.s3Client.createObject({
-      file,
-      bucket: 'menu-order',
-    });
+    // const createdImage = await this.s3Client.createObject({
+    //   file,
+    //   bucket: 'menu-order',
+    // });
     const data = await this.productService.createProduct({
       ...body,
-      image: createdImage,
+      // image: createdImage,
     });
     return {
       success: true,

@@ -83,7 +83,7 @@ export class ToppingsCategoryService {
         if (!found || !category?.id) {
           currCategory = await this.repo.create({
             ...category,
-            product,
+            productId: product.id,
           } as ToppingsCategory);
           // else update it
         } else {

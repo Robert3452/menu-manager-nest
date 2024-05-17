@@ -20,7 +20,7 @@ export class Product {
   @Column({ type: 'varchar', length: 500, name: 'content' })
   content: string;
 
-  @Column({ type: 'varchar', length: 300, name: 'image' })
+  @Column({ type: 'varchar', length: 300, name: 'image', nullable: true })
   image: string;
 
   @Column({ type: 'integer' })
