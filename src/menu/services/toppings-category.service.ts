@@ -71,7 +71,8 @@ export class ToppingsCategoryService {
     product: Product,
   ): Promise<ToppingsCategory[]> {
     const upsertPromises = body.map(
-      async (category): Promise<UpdateToppingCategoryDto> => {
+      async (item): Promise<UpdateToppingCategoryDto> => {
+        const { toppings, ...category } = item;
         let currCategory: ToppingsCategory;
         const found = await this.repo.findOneById(category?.id);
         // If remove is true, remove it.
@@ -92,7 +93,7 @@ export class ToppingsCategoryService {
             product,
           } as ToppingsCategory);
         }
-        return { ...currCategory, toppings: category.toppings };
+        return { ...currCategory, toppings };
         // upsert the toppings inside the array
       },
     );
