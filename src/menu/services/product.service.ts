@@ -6,7 +6,7 @@ import { ToppingsCategory } from 'src/database/Entity/ToppingCategories';
 import { ToppingsCategoryService } from 'src/menu/services/toppings-category.service';
 import { S3ClientService } from 'src/s3-client/s3-client.service';
 import { BranchesService } from 'src/stores/services/branches.service';
-import { Repository } from 'typeorm';
+import { CannotAttachTreeChildrenEntityError, Repository } from 'typeorm';
 import { CreateProductDto } from '../dto/create-product.dto';
 import { MoveProductCardDto } from '../dto/move-product-card.dto';
 import { UpdateProductDto } from '../dto/update-product.dto';
@@ -40,23 +40,28 @@ export class ProductService {
     return updated;
   }
   async createProduct(body: CreateProductDto) {
-    const { corridorId, ...rest } = body;
-    const currCorridor = await this.corridorService.getCorridorById(corridorId);
-    const index = currCorridor.products.length;
-    const saved = await this.repo.create({
-      ...rest,
-      corridorId,
-      index: rest?.index || index,
-      toppingCategories: [] as ToppingsCategory[],
-      id: null,
-      corridor: currCorridor,
-    } as Product);
-    if (rest.toppingCategories)
-      saved.toppingCategories = await this.toppingCategoryService.upsert(
-        rest.toppingCategories,
-        saved,
-      );
-    return saved;
+    try {
+      const { corridorId, ...rest } = body;
+      const currCorridor =
+        await this.corridorService.getCorridorById(corridorId);
+      const index = currCorridor.products.length;
+      const saved = await this.repo.create({
+        ...rest,
+        corridorId,
+        index: rest?.index || index,
+        toppingCategories: [] as ToppingsCategory[],
+        id: null,
+        corridor: currCorridor,
+      } as Product);
+      if (rest.toppingCategories)
+        saved.toppingCategories = await this.toppingCategoryService.upsert(
+          rest.toppingCategories,
+          saved,
+        );
+      return saved;
+    } catch (error) {
+      throw error;
+    }
   }
   async clearCorridor(corridorId: number) {
     const corridor = await this.corridorService.getCorridorById(corridorId);

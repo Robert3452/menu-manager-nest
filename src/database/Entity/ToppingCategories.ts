@@ -15,7 +15,7 @@ export class ToppingsCategory {
   @PrimaryGeneratedColumn({ name: 'toppingsCategoryId' })
   id: number;
 
-  @Column({ name: 'title', type: 'varchar', length: 50, unique: false })
+  @Column({ name: 'title', type: 'varchar', length: 50 })
   title: string;
 
   @Column({ name: 'mandatory', type: 'boolean', default: false })
