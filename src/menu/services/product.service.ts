@@ -6,7 +6,7 @@ import { ToppingsCategory } from 'src/database/Entity/ToppingCategories';
 import { ToppingsCategoryService } from 'src/menu/services/toppings-category.service';
 import { S3ClientService } from 'src/s3-client/s3-client.service';
 import { BranchesService } from 'src/stores/services/branches.service';
-import { CannotAttachTreeChildrenEntityError, Repository } from 'typeorm';
+import { Repository } from 'typeorm';
 import { CreateProductDto } from '../dto/create-product.dto';
 import { MoveProductCardDto } from '../dto/move-product-card.dto';
 import { UpdateProductDto } from '../dto/update-product.dto';
