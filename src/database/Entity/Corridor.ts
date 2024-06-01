@@ -25,10 +25,10 @@ export class Corridor {
   @JoinTable({
     name: 'branchesHasCorridors',
     joinColumn: {
-      name: 'branchId',
+      name: 'corridorId',
     },
     inverseJoinColumn: {
-      name: 'corridorId',
+      name: 'branchId',
     },
   })
   branches: Branch[];

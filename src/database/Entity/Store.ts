@@ -27,10 +27,10 @@ export class Store {
   @JoinTable({
     name: 'storesHasTags',
     joinColumn: {
-      name: 'tagId',
+      name: 'storeId',
     },
     inverseJoinColumn: {
-      name: 'storeId',
+      name: 'tagId',
     },
   })
   tags: Tag[];
