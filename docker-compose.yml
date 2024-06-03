@@ -1,6 +1,6 @@
 version: '3.8'
 services:
-  db:
+  menu-manager-db:
     image: postgres
     restart: always
     container_name: menu-manager-db
@@ -11,13 +11,13 @@ services:
       - ./database_data:/var/lib/postgresql/data
     ports:
       - '5434:5432'
-  app:
+  menu-manager-app:
     build:
       context: .
       dockerfile: ./Docker/development.Dockerfile
     container_name: menu-manager
     environment:
-      - DB_HOST=db
+      - DB_HOST=menu-manager-db
       - DB_USERNAME=${DB_USERNAME}
       - DB_PASSWORD=${DB_PASSWORD}
       - DB_NAME=${DB_NAME}
@@ -26,7 +26,7 @@ services:
       - S3MANAGER=${S3MANAGER}
       - PORT=${PORT}
     depends_on:
-      - db
+      - menu-manager-db
     ports:
       - '${PORT}:3000'
     volumes:
