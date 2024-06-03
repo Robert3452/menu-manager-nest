@@ -1,0 +1,41 @@
+version: '3.8'
+services:
+  db:
+    image: postgres
+    restart: always
+    container_name: menu-manager-db
+    environment:
+      POSTGRES_PASSWORD: ${DB_PASSWORD}
+      POSTGRES_DB: ${DB_NAME}
+    volumes:
+      - ./database_data:/var/lib/postgresql/data
+    ports:
+      - '5434:5432'
+  app:
+    build:
+      context: .
+      dockerfile: ./Docker/development.Dockerfile
+    container_name: menu-manager
+    environment:
+      - DB_HOST=db
+      - DB_USERNAME=${DB_USERNAME}
+      - DB_PASSWORD=${DB_PASSWORD}
+      - DB_NAME=${DB_NAME}
+      - DB_PORT=5432
+      - ENVIRONMENT=${ENVIRONMENT}
+      - S3MANAGER=${S3MANAGER}
+      - PORT=${PORT}
+    depends_on:
+      - db
+    ports:
+      - '${PORT}:3000'
+    volumes:
+      - ./src/:/usr/src/src
+      - /usr/src/node_modules
+    command:
+      - /bin/sh
+      - -c
+      - |
+        npm run build
+        npm run migration:run
+        npm run dev

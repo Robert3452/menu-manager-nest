@@ -12,6 +12,7 @@ import { StoresModule } from './stores/stores.module';
 import { BranchInfoModule } from './branch-info/branch-info.module';
 import config from './config';
 import { AppDiscoveryService } from './discovery.service';
+import { ClientConsumerModule } from './client-consumer/client-consumer.module';
 
 @Module({
   imports: [
@@ -26,6 +27,7 @@ import { AppDiscoveryService } from './discovery.service';
     MenuModule,
     StoresModule,
     BranchInfoModule,
+    ClientConsumerModule,
   ],
   controllers: [AppController],
   providers: [
