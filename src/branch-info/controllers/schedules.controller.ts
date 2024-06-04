@@ -6,6 +6,7 @@ import {
   Param,
   Post,
   Put,
+  UseGuards,
 } from '@nestjs/common';
 import { ScheduleService } from '../services/schedule.service';
 import { WeekdayScheduleService } from '../services/weekday-schedule.service';
@@ -13,7 +14,9 @@ import { CreateScheduleDto } from '../dto/create-schedule.dto';
 import { Weekdays } from 'src/database/Entity/Enum/WeekDaysEnum';
 import { UpdateWeekdayScheduleDto } from '../dto/update-weekday-schedule.dto';
 import { CreateWeekdayScheduleDto } from '../dto/create-weekday-schedule.dto';
+import { AuthGuard } from 'src/guards/auth.guard';
 
+@UseGuards(AuthGuard)
 @Controller('schedules')
 export class SchedulesController {
   constructor(

@@ -7,6 +7,7 @@ import {
   Post,
   Put,
   Query,
+  UseGuards,
 } from '@nestjs/common';
 import { CorridorsService } from 'src/menu/services/corridors.service';
 import { CreateCorridorDto } from 'src/menu/dto/create-corridor.dto';
@@ -14,7 +15,9 @@ import { UpdateCorridorDto } from 'src/menu/dto/update-corridor.dto';
 import { RemoveCorridorDto } from 'src/menu/dto/remove-corridor.dto';
 import { AddCorridorDto } from 'src/menu/dto/add-corridor.dto';
 import { ProductService } from 'src/menu/services/product.service';
+import { AuthGuard } from 'src/guards/auth.guard';
 
+@UseGuards(AuthGuard)
 @Controller('corridors')
 export class CorridorsController {
   constructor(

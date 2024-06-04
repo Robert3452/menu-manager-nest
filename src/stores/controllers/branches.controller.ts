@@ -6,11 +6,13 @@ import {
   Param,
   Post,
   Put,
+  UseGuards,
 } from '@nestjs/common';
 import { BranchesService } from '../services/branches.service';
 import { CreateBranchDto } from '../dto/create-branch.dto';
 import { UpdateBranchDto } from '../dto/update-branch.dto';
-
+import { AuthGuard } from 'src/guards/auth.guard';
+@UseGuards(AuthGuard)
 @Controller('branches')
 export class BranchesController {
   constructor(private brancheService: BranchesService) {}

@@ -1,8 +1,18 @@
-import { Body, Controller, Delete, Param, Post, Put } from '@nestjs/common';
+import {
+  Body,
+  Controller,
+  Delete,
+  Param,
+  Post,
+  Put,
+  UseGuards,
+} from '@nestjs/common';
 import { ToppingsService } from '../services/toppings.service';
 import { CreateToppingDto } from '../dto/create-topping.dto';
 import { UpdateToppingDto } from '../dto/update-topping.dto';
+import { AuthGuard } from 'src/guards/auth.guard';
 
+@UseGuards(AuthGuard)
 @Controller('toppings')
 export class ToppingsController {
   constructor(private toppingService: ToppingsService) {}

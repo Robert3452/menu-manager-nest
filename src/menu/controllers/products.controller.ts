@@ -7,6 +7,7 @@ import {
   Post,
   Put,
   UploadedFile,
+  UseGuards,
   UseInterceptors,
 } from '@nestjs/common';
 import { ProductService } from '../services/product.service';
@@ -15,7 +16,8 @@ import { CreateProductDto } from '../dto/create-product.dto';
 import { S3ClientService } from 'src/s3-client/s3-client.service';
 import { UpdateProductDto } from '../dto/update-product.dto';
 import { MoveProductCardDto } from '../dto/move-product-card.dto';
-
+import { AuthGuard } from 'src/guards/auth.guard';
+@UseGuards(AuthGuard)
 @Controller('products')
 export class ProductsController {
   constructor(

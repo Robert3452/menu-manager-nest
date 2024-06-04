@@ -6,12 +6,14 @@ import {
   Param,
   Post,
   Put,
+  UseGuards,
 } from '@nestjs/common';
 import { CreateToppingCategoryDto } from '../dto/create-toppings-category.dto';
 import { ToppingsCategoryService } from '../services/toppings-category.service';
 import { UpdateToppingCategoryDto } from '../dto/update-toppings-category.dto';
 import { ToppingsService } from '../services/toppings.service';
-
+import { AuthGuard } from 'src/guards/auth.guard';
+@UseGuards(AuthGuard)
 @Controller('topping-categories')
 export class ToppingCategoriesController {
   constructor(
