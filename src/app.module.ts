@@ -1,18 +1,18 @@
 import { Module } from '@nestjs/common';
+import { ConfigModule } from '@nestjs/config';
+import { APP_INTERCEPTOR, DiscoveryModule } from '@nestjs/core';
+import { join, resolve } from 'path';
 import { AppController } from './app.controller';
 import { AppService } from './app.service';
-import { DatabaseModule } from './database/database.module';
-import { APP_INTERCEPTOR, DiscoveryModule } from '@nestjs/core';
-import { TransformInterceptor } from './Interceptors/transform.interceptor';
-import { S3ClientModule } from './s3-client/s3-client.module';
-import { ConfigModule } from '@nestjs/config';
-import { join, resolve } from 'path';
-import { MenuModule } from './menu/menu.module';
-import { StoresModule } from './stores/stores.module';
 import { BranchInfoModule } from './branch-info/branch-info.module';
 import config from './config';
+import { DatabaseModule } from './database/database.module';
 import { AppDiscoveryService } from './discovery.service';
-import { ClientConsumerModule } from './client-consumer/client-consumer.module';
+import { TransformInterceptor } from './Interceptors/transform.interceptor';
+import { MenuModule } from './menu/menu.module';
+import { MicroserviceModule } from './microservice-client/microservice-client.module';
+import { S3ClientModule } from './s3-client/s3-client.module';
+import { StoresModule } from './stores/stores.module';
 
 @Module({
   imports: [
@@ -26,14 +26,16 @@ import { ClientConsumerModule } from './client-consumer/client-consumer.module';
     S3ClientModule,
     MenuModule,
     StoresModule,
+    MicroserviceModule,
     BranchInfoModule,
-    ClientConsumerModule,
   ],
   controllers: [AppController],
   providers: [
     AppService,
     { provide: APP_INTERCEPTOR, useClass: TransformInterceptor },
+    // microServiceFactory,
     AppDiscoveryService,
   ],
+  // exports: [microServiceFactory],
 })
 export class AppModule {}

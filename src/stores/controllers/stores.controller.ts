@@ -7,13 +7,15 @@ import {
   Post,
   Put,
   UploadedFile,
+  UseGuards,
   UseInterceptors,
 } from '@nestjs/common';
 import { StoresService } from '../services/stores.service';
 import { CreateStoreDto } from '../dto/create-store.dto';
 import { FileInterceptor } from '@nestjs/platform-express';
 import { UpdateStoreDto } from '../dto/update-store.dto';
-
+import { AuthGuard } from 'src/guards/auth.guard';
+@UseGuards(AuthGuard)
 @Controller('stores')
 export class StoreController {
   constructor(private storeService: StoresService) {}
