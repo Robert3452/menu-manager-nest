@@ -16,6 +16,7 @@ import { RemoveCorridorDto } from 'src/menu/dto/remove-corridor.dto';
 import { AddCorridorDto } from 'src/menu/dto/add-corridor.dto';
 import { ProductService } from 'src/menu/services/product.service';
 import { AuthGuard } from 'src/guards/auth.guard';
+import { Public } from 'src/decorators/public.decorator';
 
 @UseGuards(AuthGuard)
 @Controller('corridors')
@@ -24,7 +25,7 @@ export class CorridorsController {
     private corridorService: CorridorsService,
     private productService: ProductService,
   ) {}
-
+  @Public()
   @Get(':corridorId')
   async getCorridorById(@Param('corridorId') corridorId: string) {
     const data = await this.corridorService.getCorridorById(+corridorId);

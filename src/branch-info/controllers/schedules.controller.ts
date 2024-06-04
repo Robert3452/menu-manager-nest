@@ -15,6 +15,7 @@ import { Weekdays } from 'src/database/Entity/Enum/WeekDaysEnum';
 import { UpdateWeekdayScheduleDto } from '../dto/update-weekday-schedule.dto';
 import { CreateWeekdayScheduleDto } from '../dto/create-weekday-schedule.dto';
 import { AuthGuard } from 'src/guards/auth.guard';
+import { Public } from 'src/decorators/public.decorator';
 
 @UseGuards(AuthGuard)
 @Controller('schedules')
@@ -33,7 +34,7 @@ export class SchedulesController {
       data: result,
     };
   }
-
+  @Public()
   @Get(':scheduleId')
   async getScheduleById(@Param('scheduleId') scheduleId: string) {
     const result = await this.scheduleService.getScheduleById(+scheduleId);

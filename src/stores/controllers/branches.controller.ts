@@ -12,6 +12,7 @@ import { BranchesService } from '../services/branches.service';
 import { CreateBranchDto } from '../dto/create-branch.dto';
 import { UpdateBranchDto } from '../dto/update-branch.dto';
 import { AuthGuard } from 'src/guards/auth.guard';
+import { Public } from 'src/decorators/public.decorator';
 @UseGuards(AuthGuard)
 @Controller('branches')
 export class BranchesController {
@@ -31,13 +32,13 @@ export class BranchesController {
     const data = await this.brancheService.deleteBranch(+branchId);
     return { data, message: 'Branch deleted successfully', success: true };
   }
-
+  @Public()
   @Get(':branchId')
   async getBranchById(@Param('branchId') branchId: string) {
     const data = await this.brancheService.getBranchById(+branchId);
     return { data, message: 'Branch by id', success: true };
   }
-
+  @Public()
   @Get(':branchId/menu')
   async getCorridorsByBranch(@Param('branchId') branchId: string) {
     const data = await this.brancheService.getMenuBoard(+branchId);

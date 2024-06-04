@@ -15,6 +15,7 @@ import { CreateStoreDto } from '../dto/create-store.dto';
 import { FileInterceptor } from '@nestjs/platform-express';
 import { UpdateStoreDto } from '../dto/update-store.dto';
 import { AuthGuard } from 'src/guards/auth.guard';
+import { Public } from 'src/decorators/public.decorator';
 @UseGuards(AuthGuard)
 @Controller('stores')
 export class StoreController {
@@ -46,18 +47,19 @@ export class StoreController {
     const data = await this.storeService.deleteStore(+storeId);
     return { data, message: 'Store deleted successfully', success: true };
   }
-
+  @Public()
   @Get()
   async getAllStores() {
     const data = await this.storeService.getStores();
     return { data, message: 'List of Stores ', success: true };
   }
+  @Public()
   @Get(':storeId')
   async getStoreById(@Param('storeId') storeId: string) {
     const data = await this.storeService.getStoreById(+storeId);
     return { data, message: 'Store by id', success: true };
   }
-
+  @Public()
   @Get(':storeId/branches')
   async getBranchesById(@Param('storeId') storeId: string) {
     const data = await this.storeService.getBranchesByStoreId(+storeId);

@@ -12,6 +12,7 @@ import { AddressService } from '../services/address.service';
 import { CreateAddressDto } from '../dto/create-address.dto';
 import { UpdateAddressDto } from '../dto/update-address.dto';
 import { AuthGuard } from 'src/guards/auth.guard';
+import { Public } from 'src/decorators/public.decorator';
 
 @UseGuards(AuthGuard)
 @Controller('addresses')
@@ -27,7 +28,7 @@ export class AddressesController {
       data: result,
     };
   }
-
+  @Public()
   @Get(':addressId')
   async getAddressById(@Param('addressId') addressId: string) {
     const result = await this.addressService.getAddressByBranchId(+addressId);

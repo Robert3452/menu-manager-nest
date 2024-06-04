@@ -17,6 +17,7 @@ import { S3ClientService } from 'src/s3-client/s3-client.service';
 import { UpdateProductDto } from '../dto/update-product.dto';
 import { MoveProductCardDto } from '../dto/move-product-card.dto';
 import { AuthGuard } from 'src/guards/auth.guard';
+import { Public } from 'src/decorators/public.decorator';
 @UseGuards(AuthGuard)
 @Controller('products')
 export class ProductsController {
@@ -45,7 +46,7 @@ export class ProductsController {
       data,
     };
   }
-
+  @Public()
   @Get(':productId')
   async getProductById(@Param('productId') productId: string) {
     const data = await this.productService.getProductById(+productId);
