@@ -13,6 +13,7 @@ import { Topping } from './Entity/Topping';
 import { ToppingsCategory } from './Entity/ToppingCategories';
 import { Weekday } from './Entity/Weekday';
 import { WeekdaySchedule } from './Entity/WeekDaySchedule';
+import { StoreHasUsers } from './Entity/StoreHasUsers';
 @Global()
 @Module({
   imports: [
@@ -37,6 +38,7 @@ import { WeekdaySchedule } from './Entity/WeekDaySchedule';
       ToppingsCategory,
       Weekday,
       WeekdaySchedule,
+      StoreHasUsers,
     ]),
   ],
   exports: [TypeOrmModule],

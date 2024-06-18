@@ -8,6 +8,7 @@ import {
 } from 'typeorm';
 import { Branch } from './Branch';
 import { Tag } from './Tag';
+import { StoreHasUsers } from './StoreHasUsers';
 
 @Entity({ name: 'stores' })
 export class Store {
@@ -22,6 +23,9 @@ export class Store {
 
   @OneToMany(() => Branch, (branch) => branch.store)
   branches: Branch[];
+
+  @OneToMany(() => StoreHasUsers, (storeHasUsers) => storeHasUsers.store)
+  storeHasUsers: StoreHasUsers[];
 
   @ManyToMany(() => Tag, (tag) => tag.stores)
   @JoinTable({

@@ -6,10 +6,12 @@ import {
   Param,
   Post,
   Put,
+  Req,
   UploadedFile,
   UseGuards,
   UseInterceptors,
 } from '@nestjs/common';
+import { Request } from 'express';
 import { StoresService } from '../services/stores.service';
 import { CreateStoreDto } from '../dto/create-store.dto';
 import { FileInterceptor } from '@nestjs/platform-express';
@@ -26,8 +28,10 @@ export class StoreController {
   async createStore(
     @Body() body: CreateStoreDto,
     @UploadedFile() file: Express.Multer.File,
+    @Req() req: Request,
   ) {
-    const data = await this.storeService.createStore(body, file);
+    const userId = req['user']['id'];
+    const data = await this.storeService.createStore(body, file, userId);
     return { data, message: 'Store created successfully', success: true };
   }
 

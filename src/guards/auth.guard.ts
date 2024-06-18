@@ -35,7 +35,7 @@ export class AuthGuard implements CanActivate {
 
     const [, jwt] = authHeaderParts;
 
-    const isAuth = await lastValueFrom(
+    const { isAuth, payload } = await lastValueFrom(
       this.authService.send(
         { cmd: 'auth' },
         {
@@ -45,6 +45,7 @@ export class AuthGuard implements CanActivate {
       ),
     );
 
+    if (isAuth) request.user = payload;
     return isAuth;
   }
 }

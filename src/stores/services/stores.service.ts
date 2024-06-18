@@ -6,6 +6,7 @@ import { S3ClientService } from 'src/s3-client/s3-client.service';
 import { CreateStoreDto } from '../dto/create-store.dto';
 import { UpdateStoreDto } from '../dto/update-store.dto';
 import { Repository } from 'typeorm';
+import { StoreHasUsersService } from './store-has-user.service';
 
 @Injectable()
 export class StoresService {
@@ -13,21 +14,30 @@ export class StoresService {
   constructor(
     private s3Client: S3ClientService,
     @InjectRepository(Store) private readonly storeRepo: Repository<Store>,
+    private userService: StoreHasUsersService,
   ) {
     this.repo = new BaseRepository(storeRepo);
   }
 
-  async createStore(body: CreateStoreDto, file: Express.Multer.File) {
+  async createStore(
+    body: CreateStoreDto,
+    file: Express.Multer.File,
+    userId: number,
+  ) {
     try {
       const url = await this.s3Client.createObject({
         bucket: 'menu-order',
         file: file,
       });
-      const created = await this.repo.create({
+      const store = await this.repo.create({
         name: body.name,
         logo: url,
       } as Store);
-      return created;
+      await this.userService.create({
+        storeId: store.id,
+        userId,
+      });
+      return store;
     } catch (error) {
       throw error;
     }
