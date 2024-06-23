@@ -75,6 +75,23 @@ export class StoresService {
     }
   }
 
+  async getStoresByOwner(userId: number) {
+    try {
+      const result = await this.repo
+        .createQueryBuilder('stores')
+        .leftJoinAndSelect('stores.branches', 'branches')
+        .innerJoinAndSelect('stores.storeHasUsers', 'users')
+        .leftJoin('branches.address', 'address')
+        .leftJoinAndSelect('stores.tags', 'tags')
+        .addSelect('address.address')
+        .where('users.userId=:userId', { userId })
+        .getMany();
+      return result;
+    } catch (error) {
+      throw error;
+    }
+  }
+
   async updateStore(
     storeId: number,
     body: UpdateStoreDto,

@@ -57,6 +57,15 @@ export class StoreController {
     const data = await this.storeService.getStores();
     return { data, message: 'List of Stores ', success: true };
   }
+
+  @Get()
+  @UseGuards(AuthGuard)
+  async getStoresByOwner(@Req() req: Request) {
+    const userId = req['user']['id'];
+    const data = await this.storeService.getStoresByOwner(userId);
+    return { data, message: 'List of Stores ', success: true };
+  }
+
   @Public()
   @Get(':storeId')
   async getStoreById(@Param('storeId') storeId: string) {

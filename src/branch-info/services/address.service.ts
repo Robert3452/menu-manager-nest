@@ -19,7 +19,8 @@ export class AddressService {
         streetType: StreetType[body.streetType],
         addressType: AddressType[body.addressType],
       } as Address);
-      return createdAddress;
+      const saved = await this.addressRepository.save(createdAddress);
+      return saved;
     } catch (error) {
       console.log(error);
     }
