@@ -3,7 +3,7 @@ import { Store } from './Store';
 
 @Entity({ name: 'store_has_users' })
 export class StoreHasUsers {
-  @PrimaryColumn({ name: 'storeId' })
+  @PrimaryColumn({ name: 'userId' })
   userId: number;
 
   @Column({ type: 'int', name: 'storeId' })
