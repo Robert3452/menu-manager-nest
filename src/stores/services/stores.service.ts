@@ -43,8 +43,6 @@ export class StoresService {
     }
   }
 
-
-  
   async getBranchesByStoreId(storeId: number) {
     const result = await this.repo
       .createQueryBuilder('stores')
@@ -100,6 +98,9 @@ export class StoresService {
         .leftJoinAndSelect('stores.branches', 'branches')
         .innerJoinAndSelect('stores.storeHasUsers', 'users')
         .innerJoinAndSelect('branches.corridors', 'corridors')
+        .leftJoinAndSelect('branches.address', 'address')
+        .leftJoinAndSelect('branches.schedule', 'schedule')
+        .leftJoinAndSelect('schedule.weekdaySchedules', 'weekdays')
         .leftJoinAndSelect('corridors.products', 'products')
         .leftJoinAndSelect('products.toppingCategories', 'categories')
         .leftJoinAndSelect('categories.toppings', 'toppings')
