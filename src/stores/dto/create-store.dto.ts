@@ -5,3 +5,8 @@ export class CreateStoreDto {
   name: string;
   //   schedules?: CreateStoreDto[];
 }
+
+export class CreateStoreAndBranchDto extends CreateStoreDto {
+  @IsString()
+  branchName: string;
+}

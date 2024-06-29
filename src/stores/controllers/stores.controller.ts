@@ -11,28 +11,41 @@ import {
   UseGuards,
   UseInterceptors,
 } from '@nestjs/common';
-import { Request } from 'express';
-import { StoresService } from '../services/stores.service';
-import { CreateStoreDto } from '../dto/create-store.dto';
 import { FileInterceptor } from '@nestjs/platform-express';
-import { UpdateStoreDto } from '../dto/update-store.dto';
-import { AuthGuard } from 'src/guards/auth.guard';
+import { Request } from 'express';
 import { Public } from 'src/decorators/public.decorator';
+import { AuthGuard } from 'src/guards/auth.guard';
+import { CreateStoreAndBranchDto } from '../dto/create-store.dto';
+import { UpdateStoreDto } from '../dto/update-store.dto';
+import { StoresService } from '../services/stores.service';
+import { BranchesService } from '../services/branches.service';
+import { Store } from 'src/database/Entity/Store';
 @UseGuards(AuthGuard)
 @Controller('stores')
 export class StoreController {
-  constructor(private storeService: StoresService) {}
+  constructor(
+    private storeService: StoresService,
+    private branchService: BranchesService,
+  ) {}
 
   @UseInterceptors(FileInterceptor('file'))
   @Post()
   async createStore(
-    @Body() body: CreateStoreDto,
+    @Body() body: CreateStoreAndBranchDto,
     @UploadedFile() file: Express.Multer.File,
     @Req() req: Request,
   ) {
     const userId = req['user']['id'];
-    const data = await this.storeService.createStore(body, file, userId);
-    return { data, message: 'Store created successfully', success: true };
+    const newstore = await this.storeService.createStore(body, file, userId);
+    const newBranch = await this.branchService.createBranch({
+      branchName: body.branchName,
+      storeId: newstore.id,
+    });
+    return {
+      data: { ...newstore, branches: [newBranch] } as Store,
+      message: 'Store created successfully',
+      success: true,
+    };
   }
 
   @UseInterceptors(FileInterceptor('file'))
@@ -58,12 +71,20 @@ export class StoreController {
     return { data, message: 'List of Stores ', success: true };
   }
 
-  @Get()
+  @Get('my-store')
   @UseGuards(AuthGuard)
   async getStoresByOwner(@Req() req: Request) {
     const userId = req['user']['id'];
-    const data = await this.storeService.getStoresByOwner(userId);
+    const data = await this.storeService.getStoreByOwner(userId);
     return { data, message: 'List of Stores ', success: true };
+  }
+
+  @Get('my-store/menu')
+  @UseGuards(AuthGuard)
+  async getTheMainMenu(@Req() req: Request) {
+    const userId = req['user']['id'];
+    const data = await this.storeService.getMenuByStore(userId);
+    return { data, message: 'menu by store', success: true };
   }
 
   @Public()

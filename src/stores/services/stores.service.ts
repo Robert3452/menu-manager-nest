@@ -43,6 +43,8 @@ export class StoresService {
     }
   }
 
+
+  
   async getBranchesByStoreId(storeId: number) {
     const result = await this.repo
       .createQueryBuilder('stores')
@@ -75,7 +77,7 @@ export class StoresService {
     }
   }
 
-  async getStoresByOwner(userId: number) {
+  async getStoreByOwner(userId: number) {
     try {
       const result = await this.repo
         .createQueryBuilder('stores')
@@ -85,13 +87,32 @@ export class StoresService {
         .leftJoinAndSelect('stores.tags', 'tags')
         .addSelect('address.address')
         .where('users.userId=:userId', { userId })
-        .getMany();
+        .getOne();
       return result;
     } catch (error) {
       throw error;
     }
   }
-
+  async getMenuByStore(userId: number) {
+    try {
+      const menu = await this.repo
+        .createQueryBuilder('stores')
+        .leftJoinAndSelect('stores.branches', 'branches')
+        .innerJoinAndSelect('stores.storeHasUsers', 'users')
+        .innerJoinAndSelect('branches.corridors', 'corridors')
+        .leftJoinAndSelect('corridors.products', 'products')
+        .leftJoinAndSelect('products.toppingCategories', 'categories')
+        .leftJoinAndSelect('categories.toppings', 'toppings')
+        .where('users.userId=:userId', { userId })
+        .orderBy('products.index', 'ASC')
+        .addOrderBy('categories.index', 'ASC')
+        .addOrderBy('toppings.index', 'ASC')
+        .getOne();
+      return menu;
+    } catch (error) {
+      throw error;
+    }
+  }
   async updateStore(
     storeId: number,
     body: UpdateStoreDto,
