@@ -81,9 +81,8 @@ export class StoresService {
         .createQueryBuilder('stores')
         .leftJoinAndSelect('stores.branches', 'branches')
         .innerJoinAndSelect('stores.storeHasUsers', 'users')
-        .leftJoin('branches.address', 'address')
+        .leftJoinAndSelect('branches.address', 'address')
         .leftJoinAndSelect('stores.tags', 'tags')
-        .addSelect('address.address')
         .where('users.userId=:userId', { userId })
         .getOne();
       return result;

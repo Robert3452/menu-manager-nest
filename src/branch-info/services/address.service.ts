@@ -1,4 +1,4 @@
-import { Injectable } from '@nestjs/common';
+import { BadRequestException, Injectable } from '@nestjs/common';
 import { InjectRepository } from '@nestjs/typeorm';
 import { Address } from 'src/database/Entity/Address';
 import { AddressType } from 'src/database/Entity/Enum/AddressTypeEnum';
@@ -27,12 +27,14 @@ export class AddressService {
   }
 
   async update(addressId: number, body: UpdateAddressDto) {
-    const updatedAddress = await this.addressRepository.update(+addressId, {
+    const found = await this.getById(addressId);
+    if (!found) throw new BadRequestException('Dirección con ID no encontrada');
+    await this.addressRepository.update(+addressId, {
       ...body,
       streetType: StreetType[body.streetType],
       addressType: AddressType[body.addressType],
     } as Address);
-    return updatedAddress;
+    return found;
   }
 
   async delete(addressId: number) {
