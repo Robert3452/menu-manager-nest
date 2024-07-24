@@ -11,6 +11,7 @@ const microServiceFactory = {
       transport: Transport.TCP,
       options: {
         port: +configService.microservicePort,
+        host: configService.microserviceHost,
       },
     });
   },
