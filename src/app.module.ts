@@ -10,7 +10,6 @@ import { DatabaseModule } from './database/database.module';
 import { AppDiscoveryService } from './discovery.service';
 import { TransformInterceptor } from './Interceptors/transform.interceptor';
 import { MenuModule } from './menu/menu.module';
-import { MicroserviceModule } from './microservice-client/microservice-client.module';
 import { S3ClientModule } from './s3-client/s3-client.module';
 import { StoresModule } from './stores/stores.module';
 
@@ -26,7 +25,6 @@ import { StoresModule } from './stores/stores.module';
     S3ClientModule,
     MenuModule,
     StoresModule,
-    MicroserviceModule,
     BranchInfoModule,
   ],
   controllers: [AppController],

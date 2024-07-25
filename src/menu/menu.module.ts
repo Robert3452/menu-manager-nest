@@ -8,9 +8,10 @@ import { CorridorsController } from './controllers/corridors.controller';
 import { ProductsController } from './controllers/products.controller';
 import { ToppingCategoriesController } from './controllers/topping-categories.controller';
 import { ToppingsController } from './controllers/toppings.controller';
+import { HttpModule } from '@nestjs/axios';
 
 @Module({
-  imports: [StoresModule],
+  imports: [StoresModule, HttpModule],
   controllers: [
     CorridorsController,
     ProductsController,

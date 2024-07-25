@@ -6,9 +6,10 @@ import { WeekdayScheduleService } from './services/weekday-schedule.service';
 import { AddressService } from './services/address.service';
 import { AddressesController } from './controllers/addresses.controller';
 import { SchedulesController } from './controllers/schedules.controller';
+import { HttpModule } from '@nestjs/axios';
 
 @Module({
-  imports: [StoresModule],
+  imports: [StoresModule, HttpModule],
   controllers: [AddressesController, SchedulesController],
   providers: [
     BranchInfoService,

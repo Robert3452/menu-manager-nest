@@ -5,8 +5,9 @@ import { StoreController } from './controllers/stores.controller';
 import { BranchesService } from './services/branches.service';
 import { StoresService } from './services/stores.service';
 import { StoreHasUsersService } from './services/store-has-user.service';
+import { HttpModule } from '@nestjs/axios';
 @Module({
-  imports: [S3ClientModule],
+  imports: [S3ClientModule, HttpModule],
   providers: [StoresService, BranchesService, StoreHasUsersService],
   exports: [StoresService, BranchesService],
   controllers: [StoreController, BranchesController],

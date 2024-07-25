@@ -1,19 +1,23 @@
+import { HttpService } from '@nestjs/axios';
 import {
   CanActivate,
   ExecutionContext,
   Inject,
   Injectable,
 } from '@nestjs/common';
+import { ConfigType } from '@nestjs/config';
 import { Reflector } from '@nestjs/core';
-import { ClientProxy } from '@nestjs/microservices';
 import { lastValueFrom } from 'rxjs';
+import config from 'src/config';
 import { IS_PUBLIC_KEY } from 'src/decorators/public.decorator';
 
 @Injectable()
 export class AuthGuard implements CanActivate {
   constructor(
     private reflector: Reflector,
-    @Inject('AUTH_SERVICE') private readonly authService: ClientProxy,
+    private readonly httpService: HttpService,
+    @Inject(config.KEY)
+    private readonly configService: ConfigType<typeof config>,
   ) {}
   async canActivate(context: ExecutionContext): Promise<boolean> {
     const contextController = context.getClass().name;
@@ -23,26 +27,22 @@ export class AuthGuard implements CanActivate {
 
     const contextMethodName = context.getHandler().name;
 
+    const authManagerUri = this.configService.microserviceHost;
     const request = context.switchToHttp().getRequest();
 
     const authHeader = request.headers['authorization'];
 
     if (!authHeader) return false;
 
-    const authHeaderParts = (authHeader as string).split(' ');
-
-    if (authHeaderParts.length !== 2) return false;
-
-    const [, jwt] = authHeaderParts;
-
-    const { isAuth, payload } = await lastValueFrom(
-      this.authService.send(
-        { cmd: 'auth' },
-        {
-          jwt,
+    const {
+      data: { isAuth, payload },
+    } = await lastValueFrom(
+      this.httpService.get(`${authManagerUri}/auth/auth-me`, {
+        headers: {
+          Authorization: authHeader,
           method: `${contextController}#${contextMethodName}`,
         },
-      ),
+      }),
     );
 
     if (isAuth) request.user = payload;
