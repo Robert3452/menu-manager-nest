@@ -4,6 +4,7 @@ import {
   ExecutionContext,
   Inject,
   Injectable,
+  UnauthorizedException,
 } from '@nestjs/common';
 import { ConfigType } from '@nestjs/config';
 import { Reflector } from '@nestjs/core';
@@ -33,19 +34,22 @@ export class AuthGuard implements CanActivate {
     const authHeader = request.headers['authorization'];
 
     if (!authHeader) return false;
+    try {
+      const {
+        data: { isAuth, payload },
+      } = await lastValueFrom(
+        this.httpService.get(`${authManagerUri}/auth/auth-me`, {
+          headers: {
+            Authorization: authHeader,
+            method: `${contextController}#${contextMethodName}`,
+          },
+        }),
+      );
 
-    const {
-      data: { isAuth, payload },
-    } = await lastValueFrom(
-      this.httpService.get(`${authManagerUri}/auth/auth-me`, {
-        headers: {
-          Authorization: authHeader,
-          method: `${contextController}#${contextMethodName}`,
-        },
-      }),
-    );
-
-    if (isAuth) request.user = payload;
-    return isAuth;
+      if (isAuth) request.user = payload;
+      return isAuth;
+    } catch (error) {
+      throw new UnauthorizedException('Invalid token Provided');
+    }
   }
 }
