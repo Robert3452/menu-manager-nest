@@ -36,6 +36,9 @@ export class Branch {
   @OneToOne(() => Address, (address) => address.branch)
   address: Address;
 
-  @ManyToMany(() => Corridor, (corridor) => corridor.branches)
+  @ManyToMany(() => Corridor, (corridor) => corridor.branches, {
+    cascade: true,
+    onDelete: 'CASCADE',
+  })
   corridors: Corridor[];
 }

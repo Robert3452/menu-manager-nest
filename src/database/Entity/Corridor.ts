@@ -21,7 +21,7 @@ export class Corridor {
   @Column({ type: 'integer' })
   index: number;
 
-  @ManyToMany(() => Branch, (branch) => branch.corridors, { cascade: true })
+  @ManyToMany(() => Branch, (branch) => branch.corridors)
   @JoinTable({
     name: 'branchesHasCorridors',
     joinColumn: {

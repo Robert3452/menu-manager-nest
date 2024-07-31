@@ -137,8 +137,8 @@ export class StoresService {
     try {
       const found = await this.repo.findOneById(storeId);
       await this.repo.delete(storeId);
-      const storeDeleted = await this.s3Client.deleteObject(found.logo);
-      return storeDeleted;
+      await this.s3Client.deleteObject(found.logo);
+      return found;
     } catch (error) {
       console.error(error);
     }
