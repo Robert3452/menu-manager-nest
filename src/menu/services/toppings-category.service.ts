@@ -65,49 +65,72 @@ export class ToppingsCategoryService {
 
     return result;
   }
-
   async upsert(
     body: UpdateToppingCategoryDto[],
     product: Product,
   ): Promise<ToppingsCategory[]> {
-    const upsertPromises = body.map(
-      async (item): Promise<UpdateToppingCategoryDto> => {
+    // Procesar cada categoría del cuerpo
+    const upsertCategoryPromises = body.map(
+      async (item): Promise<UpdateToppingCategoryDto | null> => {
         const { toppings, ...category } = item;
-        let currCategory: ToppingsCategory;
-        const found = await this.repo.findOneById(category?.id);
-        // If remove is true, remove it.
-        if (found && category.remove) {
-          await this.delete(category.id);
-          return null;
+
+        try {
+          let currCategory: ToppingsCategory;
+          const found = await this.repo.findOneById(category.id);
+
+          // Eliminar la categoría si `remove` es verdadero
+          if (found && category.remove) {
+            await this.delete(category.id);
+            return null;
+          }
+
+          // Crear o actualizar la categoría
+          if (!found || !category.id) {
+            currCategory = await this.repo.create({
+              ...category,
+              productId: product.id,
+            } as ToppingsCategory);
+          } else {
+            currCategory = await this.repo.update(category.id, {
+              ...category,
+              product,
+            } as ToppingsCategory);
+          }
+
+          // Retornar la categoría con sus toppings para procesar
+          return { ...currCategory, toppings };
+        } catch (error) {
+          console.error(`Error processing category:`, item, error);
+          throw error; // Re-lanzar el error para manejarlo más arriba
         }
-        // if category not found, create it
-        if (!found || !category?.id) {
-          currCategory = await this.repo.create({
-            ...category,
-            productId: product.id,
-          } as ToppingsCategory);
-          // else update it
-        } else {
-          currCategory = await this.repo.update(category?.id, {
-            ...category,
-            product,
-          } as ToppingsCategory);
-        }
-        return { ...currCategory, toppings };
-        // upsert the toppings inside the array
       },
     );
-    const categories = await Promise.all(upsertPromises);
-    const categoriesPromise = categories
-      .filter((el) => el)
+
+    // Ejecutar todas las promesas para las categorías
+    const categories = await Promise.all(upsertCategoryPromises);
+
+    // Procesar las categorías válidas (excluyendo las eliminadas o errores)
+    const processToppingsPromises = categories
+      .filter((category): category is UpdateToppingCategoryDto => !!category) // Asegurar que no sea `null`
       .map(async (category): Promise<ToppingsCategory> => {
-        const toppings = await this.toppingService.upsert(category.toppings, {
-          ...category,
-        } as ToppingsCategory);
-        return { ...category, toppings } as ToppingsCategory;
+        try {
+          const toppings = await this.toppingService.upsert(category.toppings, {
+            ...category,
+          } as ToppingsCategory);
+
+          return { ...category, toppings } as ToppingsCategory;
+        } catch (error) {
+          console.error(
+            `Error processing toppings for category:`,
+            category,
+            error,
+          );
+          throw error;
+        }
       });
-    const currCategories = await Promise.all(categoriesPromise);
-    return currCategories;
+
+    // Retornar las categorías finales con sus toppings procesados
+    return await Promise.all(processToppingsPromises);
   }
 
   async getById(id: number) {
