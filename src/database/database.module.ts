@@ -14,6 +14,7 @@ import { ToppingsCategory } from './Entity/ToppingCategories';
 import { Weekday } from './Entity/Weekday';
 import { WeekdaySchedule } from './Entity/WeekDaySchedule';
 import { StoreHasUsers } from './Entity/StoreHasUsers';
+import { LandingPage } from './Entity/LandingPage';
 @Global()
 @Module({
   imports: [
@@ -30,6 +31,7 @@ import { StoreHasUsers } from './Entity/StoreHasUsers';
       Address,
       Branch,
       Corridor,
+      LandingPage,
       Product,
       Schedule,
       Store,

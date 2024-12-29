@@ -9,6 +9,7 @@ import {
 import { Branch } from './Branch';
 import { Tag } from './Tag';
 import { StoreHasUsers } from './StoreHasUsers';
+import { LandingPage } from './LandingPage';
 
 @Entity({ name: 'stores' })
 export class Store {
@@ -27,6 +28,8 @@ export class Store {
   @OneToMany(() => StoreHasUsers, (storeHasUsers) => storeHasUsers.store)
   storeHasUsers: StoreHasUsers[];
 
+  @OneToMany(() => LandingPage, (landingPage) => landingPage.store)
+  landingPages: LandingPage[];
   @ManyToMany(() => Tag, (tag) => tag.stores)
   @JoinTable({
     name: 'storesHasTags',

@@ -7,16 +7,53 @@ import { CreateStoreDto } from '../dto/create-store.dto';
 import { UpdateStoreDto } from '../dto/update-store.dto';
 import { Repository } from 'typeorm';
 import { StoreHasUsersService } from './store-has-user.service';
-
+import { LandingPage } from 'src/database/Entity/LandingPage';
 @Injectable()
 export class StoresService {
   repo: BaseRepository<Store>;
+  landingRepo: BaseRepository<LandingPage>;
   constructor(
+    @InjectRepository(LandingPage)
+    private readonly landingPageRepo: Repository<LandingPage>,
     private s3Client: S3ClientService,
     @InjectRepository(Store) private readonly storeRepo: Repository<Store>,
     private userService: StoreHasUsersService,
   ) {
     this.repo = new BaseRepository(storeRepo);
+    this.landingRepo = new BaseRepository(landingPageRepo);
+  }
+
+  async getLandingPageByStoreId(storeId: number) {
+    try {
+      const landingPage = await this.landingRepo
+        .createQueryBuilder('landingPage')
+        .where('landingPage.storeId = :storeId', { storeId })
+        .getOne();
+      return landingPage;
+    } catch (error) {
+      throw error;
+    }
+  }
+
+  async upsertLandingPage(
+    storeId: number,
+    landingPageData: Partial<LandingPage>,
+  ): Promise<LandingPage> {
+    try {
+      const landingPage = await this.landingRepo
+        .createQueryBuilder('landingPage')
+        .where('landingPage.storeId = :storeId', { storeId })
+        .getOne();
+
+      if (landingPage)
+        return await this.landingRepo.update(
+          landingPage.id,
+          landingPageData as LandingPage,
+        );
+      return await this.landingRepo.create(landingPageData as LandingPage);
+    } catch (error) {
+      throw error;
+    }
   }
 
   async createStore(
