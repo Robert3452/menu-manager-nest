@@ -20,6 +20,7 @@ import { UpdateStoreDto } from '../dto/update-store.dto';
 import { StoresService } from '../services/stores.service';
 import { BranchesService } from '../services/branches.service';
 import { Store } from 'src/database/Entity/Store';
+import { LandingPage } from 'src/database/Entity/LandingPage';
 @UseGuards(AuthGuard)
 @Controller('stores')
 export class StoreController {
@@ -98,5 +99,25 @@ export class StoreController {
   async getBranchesById(@Param('storeId') storeId: string) {
     const data = await this.storeService.getBranchesByStoreId(+storeId);
     return { data, message: 'List of branches by store id', success: true };
+  }
+
+  @Public()
+  @Get(':storeId/landing-page')
+  async getLandingPageByStoreId(@Param('storeId') storeId: string) {
+    const data = await this.storeService.getLandingPageByStoreId(+storeId);
+    return { data, message: 'Landing page by store id', success: true };
+  }
+
+  @Put(':storeId/landing-page')
+  async upsertLandingPage(
+    @Param('storeId') storeId: string,
+    @Body() body: Partial<LandingPage>,
+  ) {
+    const data = await this.storeService.upsertLandingPage(+storeId, body);
+    return {
+      data,
+      message: 'Landing page upserted successfully',
+      success: true,
+    };
   }
 }
