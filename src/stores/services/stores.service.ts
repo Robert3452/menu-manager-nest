@@ -1,4 +1,4 @@
-import { Injectable } from '@nestjs/common';
+import { BadRequestException, Injectable } from '@nestjs/common';
 import { InjectRepository } from '@nestjs/typeorm';
 import { BaseRepository } from 'src/database/BaseRepository';
 import { Store } from 'src/database/Entity/Store';
@@ -8,6 +8,7 @@ import { UpdateStoreDto } from '../dto/update-store.dto';
 import { Repository } from 'typeorm';
 import { StoreHasUsersService } from './store-has-user.service';
 import { LandingPage } from 'src/database/Entity/LandingPage';
+import { QueryFailedError } from 'typeorm';
 @Injectable()
 export class StoresService {
   repo: BaseRepository<Store>;
@@ -38,19 +39,39 @@ export class StoresService {
   async upsertLandingPage(
     storeId: number,
     landingPageData: Partial<LandingPage>,
+    file?: Express.Multer.File,
   ): Promise<LandingPage> {
     try {
+      if (landingPageData.id) delete landingPageData.id;
+      landingPageData.storeId = storeId;
+      landingPageData.buttons = landingPageData.buttons.map((button) => ({
+        ...button,
+        visible:
+          typeof button.visible === 'string'
+            ? button.visible.toLowerCase() === 'true'
+            : button.visible,
+      }));
       const landingPage = await this.landingRepo
         .createQueryBuilder('landingPage')
         .where('landingPage.storeId = :storeId', { storeId })
         .getOne();
-
+      let url: string = null;
+      if (file)
+        url = await this.s3Client.createObject({
+          bucket: 'menu-order',
+          file: file,
+        });
       if (landingPage)
-        return await this.landingRepo.update(
-          landingPage.id,
-          landingPageData as LandingPage,
-        );
-      return await this.landingRepo.create(landingPageData as LandingPage);
+        return await this.landingRepo.update(landingPage.id, {
+          ...landingPageData,
+          image: url || landingPage.image,
+        } as LandingPage);
+
+      landingPageData.image = url;
+      return await this.landingRepo.create({
+        ...landingPageData,
+        image: url,
+      } as LandingPage);
     } catch (error) {
       throw error;
     }
@@ -76,6 +97,13 @@ export class StoresService {
       });
       return store;
     } catch (error) {
+      if (error instanceof QueryFailedError) {
+        if (error.message.includes('duplicate key value')) {
+          throw new BadRequestException(
+            'Ya existe una tienda con este nombre.',
+          );
+        }
+      }
       throw error;
     }
   }
@@ -93,6 +121,7 @@ export class StoresService {
     const result = await this.repo
       .createQueryBuilder('stores')
       .leftJoinAndSelect('stores.branches', 'branches')
+      .leftJoinAndSelect('stores.landingPages', 'landingPages')
       .where('stores.id=:storeId', { storeId })
       .getOne();
     return result;
@@ -167,6 +196,13 @@ export class StoresService {
       const updated = await this.repo.update(storeId, store);
       return updated;
     } catch (error) {
+      if (error instanceof QueryFailedError) {
+        if (error.message.includes('duplicate key value')) {
+          throw new BadRequestException(
+            'Ya existe una tienda con este nombre.',
+          );
+        }
+      }
       throw error;
     }
   }

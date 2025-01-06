@@ -57,7 +57,7 @@ export class WeekdayScheduleService {
       }
       return result.sort((a, b) => a.id + b.id);
     } catch (error) {
-      console.log(error);
+      console.error(error);
     }
   }
   async update(

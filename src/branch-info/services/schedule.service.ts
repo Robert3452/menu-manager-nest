@@ -48,7 +48,7 @@ export class ScheduleService {
         .where('schedules.id = :scheduleId', { scheduleId: schedule.id })
         .getOne();
     } catch (error) {
-      console.log(error);
+      console.error(error);
     }
   }
   async addWeekdaySchedule(scheduleId: number, body: CreateWeekdayScheduleDto) {

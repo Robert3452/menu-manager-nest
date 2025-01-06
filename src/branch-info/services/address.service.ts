@@ -22,7 +22,7 @@ export class AddressService {
       const saved = await this.addressRepository.save(createdAddress);
       return saved;
     } catch (error) {
-      console.log(error);
+      console.error(error);
     }
   }
 

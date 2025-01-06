@@ -22,7 +22,7 @@ export class BaseRepository<T extends PublicEntity>
       await this.baseRepository.delete(id);
       return found;
     } catch (error) {
-      console.log(error);
+      console.error(error);
       throw error;
     }
   }
@@ -43,7 +43,7 @@ export class BaseRepository<T extends PublicEntity>
       const saved = await this.baseRepository.save(found);
       return saved;
     } catch (error) {
-      console.log(error);
+      console.error(error);
       throw error;
     }
   }

@@ -13,14 +13,14 @@ import {
 } from '@nestjs/common';
 import { FileInterceptor } from '@nestjs/platform-express';
 import { Request } from 'express';
+import { LandingPage } from 'src/database/Entity/LandingPage';
+import { Store } from 'src/database/Entity/Store';
 import { Public } from 'src/decorators/public.decorator';
 import { AuthGuard } from 'src/guards/auth.guard';
 import { CreateStoreAndBranchDto } from '../dto/create-store.dto';
 import { UpdateStoreDto } from '../dto/update-store.dto';
-import { StoresService } from '../services/stores.service';
 import { BranchesService } from '../services/branches.service';
-import { Store } from 'src/database/Entity/Store';
-import { LandingPage } from 'src/database/Entity/LandingPage';
+import { StoresService } from '../services/stores.service';
 @UseGuards(AuthGuard)
 @Controller('stores')
 export class StoreController {
@@ -49,6 +49,24 @@ export class StoreController {
     };
   }
 
+  @UseInterceptors(FileInterceptor('image'))
+  @Put(':storeId/landing-page')
+  async upsertLandingPage(
+    @Param('storeId') storeId: string,
+    @Body() body: Partial<LandingPage>,
+    @UploadedFile() image?: Express.Multer.File,
+  ) {
+    const data = await this.storeService.upsertLandingPage(
+      +storeId,
+      body,
+      image,
+    );
+    return {
+      data,
+      message: 'Landing page upserted successfully',
+      success: true,
+    };
+  }
   @UseInterceptors(FileInterceptor('file'))
   @Put(':storeId')
   async updateStore(
@@ -104,20 +122,8 @@ export class StoreController {
   @Public()
   @Get(':storeId/landing-page')
   async getLandingPageByStoreId(@Param('storeId') storeId: string) {
-    const data = await this.storeService.getLandingPageByStoreId(+storeId);
+    const data: LandingPage =
+      await this.storeService.getLandingPageByStoreId(+storeId);
     return { data, message: 'Landing page by store id', success: true };
-  }
-
-  @Put(':storeId/landing-page')
-  async upsertLandingPage(
-    @Param('storeId') storeId: string,
-    @Body() body: Partial<LandingPage>,
-  ) {
-    const data = await this.storeService.upsertLandingPage(+storeId, body);
-    return {
-      data,
-      message: 'Landing page upserted successfully',
-      success: true,
-    };
   }
 }
