@@ -15,6 +15,9 @@ import { Weekday } from './Entity/Weekday';
 import { WeekdaySchedule } from './Entity/WeekDaySchedule';
 import { StoreHasUsers } from './Entity/StoreHasUsers';
 import { LandingPage } from './Entity/LandingPage';
+import { Order } from './Entity/Order';
+import { OrderItem } from './Entity/OrderItem';
+import { OrderItemTopping } from './Entity/OrderItemTopping';
 @Global()
 @Module({
   imports: [
@@ -41,6 +44,9 @@ import { LandingPage } from './Entity/LandingPage';
       Weekday,
       WeekdaySchedule,
       StoreHasUsers,
+      Order,
+      OrderItem,
+      OrderItemTopping,
     ]),
   ],
   exports: [TypeOrmModule],

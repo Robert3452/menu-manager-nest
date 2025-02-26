@@ -13,7 +13,6 @@ import { MenuModule } from './menu/menu.module';
 import { S3ClientModule } from './s3-client/s3-client.module';
 import { StoresModule } from './stores/stores.module';
 import { OrderModule } from './order/order.module';
-import { TypeOrmModule } from '@nestjs/typeorm';
 
 @Module({
   imports: [
@@ -29,9 +28,6 @@ import { TypeOrmModule } from '@nestjs/typeorm';
     StoresModule,
     BranchInfoModule,
     OrderModule,
-    TypeOrmModule.forRoot({
-      // ...existing code...
-    }),
   ],
   controllers: [AppController],
   providers: [
