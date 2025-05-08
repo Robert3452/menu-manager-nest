@@ -64,6 +64,8 @@ export class BranchesService {
     const menu = await this.repo
       .createQueryBuilder('branches')
       .leftJoinAndSelect('branches.corridors', 'corridors')
+      .leftJoinAndSelect('branches.store', 'stores')
+      .leftJoinAndSelect('branches.address', 'address')
       .leftJoinAndSelect('corridors.products', 'products')
       .leftJoinAndSelect('products.toppingCategories', 'categories')
       .leftJoinAndSelect('categories.toppings', 'toppings')
